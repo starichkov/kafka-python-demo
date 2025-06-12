@@ -167,6 +167,15 @@ kafka-python-demo/
 
 ---
 
+## 🔗 Links
+
+- [Apache Kafka (Official)](https://kafka.apache.org/)
+- [Kafka Quickstart Guide](https://kafka.apache.org/quickstart)
+- [Kafka Docker Image (Official)](https://hub.docker.com/r/apache/kafka)
+- [Kafka Python Client – kafka-python (GitHub)](https://github.com/dpkp/kafka-python)
+
+---
+
 ## 📜 License & Attribution
 
 This project is licensed under the **MIT License** - see the [LICENSE](https://github.com/starichkov/kafka-python-demo/blob/main/LICENSE.md) file for details.

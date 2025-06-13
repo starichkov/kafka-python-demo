@@ -1,7 +1,7 @@
 from kafka import KafkaProducer
 import json
+import random
 import time
-
 
 """
 Apache Kafka Producer Demo
@@ -17,6 +17,7 @@ Usage:
     python producer.py
 """
 
+EVENT_TYPES = ["note_created", "note_updated", "note_deleted"]
 
 # Initialize the Kafka producer with configuration
 # - bootstrap_servers: Connection string for the Kafka broker
@@ -28,9 +29,11 @@ producer = KafkaProducer(
 )
 
 # Send 5 sample messages to the Kafka topic
-for i in range(5):
+for i in range(10):
+    event_type = random.choice(EVENT_TYPES)
+
     # Create a simple message with an ID and text
-    message = {"id": i, "text": f"Message {i}"}
+    message = {"id": i, "event_type": event_type, "text": f"Note event {i} of type {event_type}"}
 
     # Send the message to 'test-topic'
     producer.send('test-topic', message)

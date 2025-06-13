@@ -98,7 +98,11 @@ Tired, shutting down.
 
 ### 2. Run the Producer
 
-The `producer.py` script sends a few JSON messages to the topic `test-topic`:
+The `producer.py` script sends JSON messages to the topic `test-topic`. Each message includes an `event_type`, chosen randomly from:
+
+- `note_created`
+- `note_updated`
+- `note_deleted`
 
 ```shell
 python producer.py
@@ -107,8 +111,9 @@ python producer.py
 Example output:
 
 ```
-Sent: {'id': 0, 'text': 'Message 0'}
-Sent: {'id': 1, 'text': 'Message 1'}
+Sent: {'id': 0, 'event_type': 'note_deleted', 'text': 'Note event 0 of type note_deleted'}
+Sent: {'id': 1, 'event_type': 'note_created', 'text': 'Note event 1 of type note_created'}
+Sent: {'id': 2, 'event_type': 'note_deleted', 'text': 'Note event 2 of type note_deleted'}
 ...
 ```
 
@@ -116,15 +121,17 @@ Sent: {'id': 1, 'text': 'Message 1'}
 
 ### 3. Run the Consumer
 
-The `consumer.py` script reads messages from the topic and parses them. It will:
+The `consumer.py` script reads messages from the topic and parses them. It:
 
-- Parse and display JSON messages as dictionaries
-- Fall back to plain text for non-JSON messages
+- Parses and displays JSON messages with structured output
+- Falls back to plain text for non-JSON messages
+- Accepts an optional `--event-type` argument to filter messages
 
-Run it with:
+Examples:
 
-```shell
-python consumer.py
+```bash
+python consumer.py                             # consume all messages
+python consumer.py --event-type note_created   # filter by event_type
 ```
 
 Example output:
@@ -132,14 +139,10 @@ Example output:
 ```
 Polyglot consumer listening...
 
-📦 Plain: First message
-📦 Plain: Second message
-📦 Plain: Tired, shutting down.
-✅ JSON: {'id': 0, 'text': 'Message 0'}
-✅ JSON: {'id': 1, 'text': 'Message 1'}
-✅ JSON: {'id': 2, 'text': 'Message 2'}
-✅ JSON: {'id': 3, 'text': 'Message 3'}
-✅ JSON: {'id': 4, 'text': 'Message 4'}
+✅ JSON (note_deleted): {'id': 0, 'event_type': 'note_deleted', 'text': 'Note event 0 of type note_deleted'}
+✅ JSON (note_created): {'id': 1, 'event_type': 'note_created', 'text': 'Note event 1 of type note_created'}
+✅ JSON (note_deleted): {'id': 2, 'event_type': 'note_deleted', 'text': 'Note event 2 of type note_deleted'}
+✅ JSON (note_updated): {'id': 3, 'event_type': 'note_updated', 'text': 'Note event 3 of type note_updated'}
 ```
 
 Use `Ctrl+C` to stop the consumer gracefully.

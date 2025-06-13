@@ -1,6 +1,6 @@
 from kafka import KafkaConsumer
+import argparse
 import json
-
 
 """
 Apache Kafka Consumer Demo
@@ -33,6 +33,10 @@ def try_parse_json(value: bytes):
         return value.decode('utf-8', errors='replace')
 
 
+parser = argparse.ArgumentParser(description="Kafka Event Consumer")
+parser.add_argument("-t", "--event-type", help="Filter by event_type", required=False)
+args = parser.parse_args()
+
 # Initialize the Kafka consumer with configuration
 # - 'test-topic': The Kafka topic to subscribe to
 # - bootstrap_servers: Connection string for the Kafka broker
@@ -55,9 +59,12 @@ try:
 
         # Display the message with an appropriate prefix based on its type
         if isinstance(parsed, dict):
-            print("✅ JSON:", parsed)  # JSON message
+            if args.event_type:
+                if parsed.get("event_type") != args.event_type:
+                    continue  # Skip non-matching event
+            print(f"✅ JSON ({parsed['event_type']}): {parsed}")
         else:
-            print("📦 Plain:", parsed)  # Plain text message
+            print(f"📦 Plain: {parsed}")
 except KeyboardInterrupt:
     # Handle graceful shutdown on Ctrl+C
     print("\nShutting down gracefully...")

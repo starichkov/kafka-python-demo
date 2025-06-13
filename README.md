@@ -149,6 +149,39 @@ Use `Ctrl+C` to stop the consumer gracefully.
 
 ---
 
+### 🔑 Message Keys and Partitions
+
+The producer now uses the message's `event_type` as the Kafka **key**, which ensures that:
+
+- All events of the same type (e.g. `note_created`) are sent to the **same partition**
+- Kafka can guarantee **ordering per event type**
+
+The consumer now displays Kafka metadata per message, including:
+
+- **Key** — the event type used for partitioning
+- **Partition** — which partition the message was written to
+- **Offset** — the message's position in the partition log
+
+This helps visualize how Kafka distributes messages based on keys.
+
+Example output:
+
+```
+✅ JSON (note_created) | key=note_created | partition=1 | offset=42 → {...}
+```
+
+**Note:** Kafka's key-based partitioning uses an internal hash function.
+With a small number of keys (e.g., only `note_created`, `note_updated`, and `note_deleted`), multiple keys may hash to the same partition.
+
+As a result:
+- You may see **some partitions receive no messages**
+- This is expected behavior with small key sets
+- Kafka **guarantees same key → same partition**, but **not even distribution** across partitions
+
+To see all partitions used, try increasing the number of unique keys or remove the key to enable round-robin distribution.
+
+---
+
 ## 📂 Project Structure
 
 ```

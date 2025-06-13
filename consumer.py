@@ -57,14 +57,18 @@ try:
         # Try to parse the message as JSON, fall back to plain text if not valid JSON
         parsed = try_parse_json(message.value)
 
+        # Decode key if available
+        key = message.key.decode('utf-8') if message.key else None
+        partition = message.partition
+        offset = message.offset
+
         # Display the message with an appropriate prefix based on its type
         if isinstance(parsed, dict):
-            if args.event_type:
-                if parsed.get("event_type") != args.event_type:
-                    continue  # Skip non-matching event
-            print(f"✅ JSON ({parsed['event_type']}): {parsed}")
+            if args.event_type and parsed.get("event_type") != args.event_type:
+                continue  # Skip non-matching event
+            print(f"✅ JSON ({parsed['event_type']}) | key={key} | partition={partition} | offset={offset} → {parsed}")
         else:
-            print(f"📦 Plain: {parsed}")
+            print(f"📦 Plain | key={key} | partition={partition} | offset={offset} → {parsed}")
 except KeyboardInterrupt:
     # Handle graceful shutdown on Ctrl+C
     print("\nShutting down gracefully...")

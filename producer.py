@@ -1,6 +1,5 @@
 from kafka import KafkaProducer
 import json
-import random
 import time
 
 """
@@ -25,21 +24,21 @@ EVENT_TYPES = ["note_created", "note_updated", "note_deleted"]
 #   (in this case, converting dictionaries to JSON strings and then to UTF-8 bytes)
 producer = KafkaProducer(
     bootstrap_servers='localhost:9092',
+    key_serializer=lambda k: k.encode('utf-8'),
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-# Send 5 sample messages to the Kafka topic
-for i in range(10):
-    event_type = random.choice(EVENT_TYPES)
+# Send 9 sample messages to the Kafka topic
+for i, event_type in enumerate(EVENT_TYPES * 3):
 
     # Create a simple message with an ID and text
     message = {"id": i, "event_type": event_type, "text": f"Note event {i} of type {event_type}"}
 
     # Send the message to 'test-topic'
-    producer.send('test-topic', message)
+    producer.send('test-topic', key=event_type, value=message)
 
     # Print confirmation and wait 1 second between messages
-    print(f"Sent: {message}")
+    print(f"Sent: key={event_type} | value={message}")
     time.sleep(1)
 
 # Ensure all messages are sent before exiting

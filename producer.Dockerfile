@@ -18,4 +18,4 @@ RUN sed -i 's/bootstrap_servers=.*/bootstrap_servers=os.environ.get("KAFKA_BOOTS
 # Add import os at the top of the file
 RUN sed -i '1s/^/import os\n/' producer.py
 
-CMD ["python", "producer.py"]
+CMD ["python", "-u", "producer.py"]

@@ -20,4 +20,4 @@ RUN sed -i '1s/^/import os\n/' consumer.py
 
 # Command to run the consumer
 # The entrypoint allows passing additional arguments to the consumer
-ENTRYPOINT ["python", "consumer.py"]
+ENTRYPOINT ["python", "-u", "consumer.py"]

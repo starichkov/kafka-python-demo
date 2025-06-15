@@ -213,6 +213,9 @@ kafka-python-demo/
 ├── producer.py          # Sends JSON messages to Apache Kafka
 ├── consumer.py          # Reads and parses both JSON and plain text messages
 ├── requirements.txt     # Python dependencies
+├── producer.Dockerfile  # Dockerfile for the producer service
+├── consumer.Dockerfile  # Dockerfile for the consumer service
+├── docker-compose.yml   # Docker Compose configuration for running the entire stack
 ├── .gitignore           # Python cache and venv exclusions
 └── README.md            # Project overview and usage instructions
 ```
@@ -227,12 +230,70 @@ kafka-python-demo/
 
 ---
 
+## 🐳 Docker Setup
+
+This project includes Docker support to run the entire stack (Kafka, producer, and consumer) in containers.
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+### Running with Docker Compose
+
+1. Build and start all services:
+
+```shell
+docker-compose up -d
+```
+
+This will start:
+- Kafka (using the official Apache Kafka image in KRaft mode without Zookeeper)
+- Producer (which will start sending messages immediately)
+- Consumer (which will start consuming messages immediately)
+
+2. View logs from the consumer:
+
+```shell
+docker logs -f kafka-consumer
+```
+
+3. View logs from the producer:
+
+```shell
+docker logs -f kafka-producer
+```
+
+### Customizing the Consumer
+
+You can customize the consumer by modifying the `command` section in the `docker-compose.yml` file:
+
+```yaml
+consumer:
+  # ... other settings ...
+  command: ["--group-id", "demo-group"]
+```
+
+Available options:
+- `--group-id` or `-g`: Set a consumer group ID
+- `--event-type` or `-t`: Filter by event type
+
+### Stopping the Services
+
+To stop all services:
+
+```shell
+docker-compose down
+```
+
 ## 🔗 Links
 
 - [Apache Kafka (Official)](https://kafka.apache.org/)
 - [Kafka Quickstart Guide](https://kafka.apache.org/quickstart)
 - [Kafka Docker Image (Official)](https://hub.docker.com/r/apache/kafka)
 - [Kafka Python Client – kafka-python (GitHub)](https://github.com/dpkp/kafka-python)
+- [Docker Documentation](https://docs.docker.com/)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
 
 ---
 

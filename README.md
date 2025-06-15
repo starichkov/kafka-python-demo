@@ -182,6 +182,30 @@ To see all partitions used, try increasing the number of unique keys or remove t
 
 ---
 
+### 👥 Consumer Groups and Partition Rebalancing
+
+Kafka uses consumer groups to distribute the workload of processing messages across multiple consumers.
+
+- Consumers in the **same group** share topic partitions — each partition is consumed by only **one group member**
+- If a consumer **joins or leaves** the group, Kafka triggers a **rebalance**
+- Kafka automatically assigns partitions based on availability and group size
+
+This project supports an optional `--group-id` parameter in the consumer:
+
+```shell
+python consumer.py --group-id demo-group
+```
+
+Running multiple consumers with the same group ID simulates real-world partition-based load balancing. You can observe which partitions each consumer receives by inspecting the output:
+
+```
+✅ JSON (note_created) | key=note_created | partition=2 | offset=15 → ...
+```
+
+Note: If you have more partitions than consumers, some consumers may receive multiple partitions. If you have more consumers than partitions, some may remain idle.
+
+---
+
 ## 📂 Project Structure
 
 ```

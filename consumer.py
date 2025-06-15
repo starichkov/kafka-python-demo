@@ -34,7 +34,8 @@ def try_parse_json(value: bytes):
 
 
 parser = argparse.ArgumentParser(description="Kafka Event Consumer")
-parser.add_argument("-t", "--event-type", help="Filter by event_type", required=False)
+parser.add_argument("-t", "--event-type", help="Filter by event_type (optional)", required=False)
+parser.add_argument("-g", "--group-id", help="Kafka consumer group ID (optional)", required=False)
 args = parser.parse_args()
 
 # Initialize the Kafka consumer with configuration
@@ -42,14 +43,18 @@ args = parser.parse_args()
 # - bootstrap_servers: Connection string for the Kafka broker
 # - auto_offset_reset='earliest': Start reading from the beginning of the topic if no committed offset exists
 # - enable_auto_commit=True: Automatically commit offsets
-consumer = KafkaConsumer(
-    'test-topic',
-    bootstrap_servers='localhost:9092',
-    auto_offset_reset='earliest',
-    enable_auto_commit=True
-)
+consumer_args = {
+    'bootstrap_servers': 'localhost:9092',
+    'auto_offset_reset': 'earliest',
+    'enable_auto_commit': True
+}
 
-print("Polyglot consumer listening...\n")
+if args.group_id:
+    consumer_args['group_id'] = args.group_id
+
+consumer = KafkaConsumer('test-topic', **consumer_args)
+
+print(f"Polyglot consumer listening, consumer group: {args.group_id}\n")
 
 try:
     # Continuously poll for new messages

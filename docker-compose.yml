@@ -20,6 +20,20 @@ services:
       timeout: 5s
       retries: 5
 
+  kafka-setup:
+    image: apache/kafka:3.9.1
+    container_name: kafka-setup
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: >
+      bash -c "
+        echo 'Creating topic test-topic...' &&
+        /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic test-topic --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1 &&
+        echo 'Topic creation completed.'
+      "
+    restart: on-failure
+
   producer:
     build:
       context: .
@@ -28,8 +42,11 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      kafka-setup:
+        condition: service_completed_successfully
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    restart: on-failure
 
   consumer:
     build:
@@ -39,7 +56,10 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      kafka-setup:
+        condition: service_completed_successfully
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    restart: on-failure
     # You can pass arguments to the consumer here
     # command: ["--group-id", "demo-group"]

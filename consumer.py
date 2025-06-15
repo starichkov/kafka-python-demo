@@ -1,6 +1,7 @@
 from kafka import KafkaConsumer
 import argparse
 import json
+import os
 
 """
 Apache Kafka Consumer Demo
@@ -38,13 +39,15 @@ parser.add_argument("-t", "--event-type", help="Filter by event_type (optional)"
 parser.add_argument("-g", "--group-id", help="Kafka consumer group ID (optional)", required=False)
 args = parser.parse_args()
 
+bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+
 # Initialize the Kafka consumer with configuration
 # - 'test-topic': The Kafka topic to subscribe to
 # - bootstrap_servers: Connection string for the Kafka broker
 # - auto_offset_reset='earliest': Start reading from the beginning of the topic if no committed offset exists
 # - enable_auto_commit=True: Automatically commit offsets
 consumer_args = {
-    'bootstrap_servers': 'localhost:9092',
+    'bootstrap_servers': bootstrap_servers,
     'auto_offset_reset': 'earliest',
     'enable_auto_commit': True
 }

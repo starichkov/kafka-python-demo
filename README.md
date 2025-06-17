@@ -299,6 +299,11 @@ docker-compose down
 
 ---
 
+## 🧾 About TemplateTasks
+
+TemplateTasks is a developer-focused initiative by Vadim Starichkov, currently operated as sole proprietorship in Finland.  
+All code is released under open-source licenses. Ownership may be transferred to a registered business entity in the future.
+
 ## 📜 License & Attribution
 
 This project is licensed under the **MIT License** - see the [LICENSE](https://github.com/starichkov/kafka-python-demo/blob/main/LICENSE.md) file for details.

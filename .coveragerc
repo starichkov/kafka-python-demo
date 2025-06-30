@@ -1,0 +1,15 @@
+[run]
+source = .
+parallel = true
+concurrency = multiprocessing
+branch = true
+omit =
+    */tests/*
+    */.venv/*
+    */site-packages/*
+    */__init__.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.*

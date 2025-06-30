@@ -11,6 +11,12 @@ from logger import get_logger
 import argparse
 import json
 
+parser = argparse.ArgumentParser(description="Kafka Event Consumer")
+parser.add_argument("-e", "--event-type", help="Filter by event_type (optional)", required=False)
+parser.add_argument("-g", "--group-id", help="Kafka consumer group ID (optional)", required=False)
+parser.add_argument("-t", "--test-mode", action="store_true")
+args = parser.parse_args()
+
 """
 Apache Kafka Consumer Demo
 
@@ -43,39 +49,24 @@ def try_parse_json(value: bytes):
         return value.decode('utf-8', errors='replace')
 
 
-parser = argparse.ArgumentParser(description="Kafka Event Consumer")
-parser.add_argument("-e", "--event-type", help="Filter by event_type (optional)", required=False)
-parser.add_argument("-g", "--group-id", help="Kafka consumer group ID (optional)", required=False)
-parser.add_argument("-t", "--test-mode", action="store_true")
-args = parser.parse_args()
+def consume_events(topic, consumer_args, event_type=None, group_id=None):
+    """
+    Consume messages from a Kafka topic.
 
+    This function creates a Kafka consumer with the provided arguments and listens
+    to a specified topic for incoming messages. Messages are parsed as JSON where
+    possible and logged appropriately. Filtering is available based on an optional
+    event type attribute in the message.
 
-def main():
-    bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-    topic = os.environ.get("KAFKA_TOPIC", "test-topic")
-
-    # Initialize the Kafka consumer with configuration
-    # - topic: The Kafka topic to subscribe to (from environment variable)
-    # - bootstrap_servers: Connection string for the Kafka broker
-    # - auto_offset_reset='earliest': Start reading from the beginning of the topic if no committed offset exists
-    # - enable_auto_commit=True: Automatically commit offsets
-    consumer_args = {
-        'bootstrap_servers': bootstrap_servers,
-        'auto_offset_reset': 'earliest',
-        'enable_auto_commit': True
-    }
-
-    if args.group_id:
-        consumer_args['group_id'] = args.group_id
-
-    if args.test_mode:
-        consumer_args['consumer_timeout_ms'] = 3000  # pragma: no cover
-
+    :param topic: Kafka topic to consume messages from.
+    :param consumer_args: Dictionary of arguments to configure the KafkaConsumer.
+    :param event_type: Optional. Filters messages by the `event_type` attribute if it's included in the message payload.
+    """
     consumer = KafkaConsumer(topic, **consumer_args)
 
     logger = get_logger("consumer")
 
-    logger.info(f"Polyglot consumer listening, consumer group: {args.group_id}\n")
+    logger.info(f"Polyglot consumer listening, consumer group: {group_id}\n")
 
     try:
         # Continuously poll for new messages
@@ -90,7 +81,7 @@ def main():
 
             # Display the message with an appropriate prefix based on its type
             if isinstance(parsed, dict):
-                if args.event_type and parsed.get("event_type") != args.event_type:
+                if event_type and parsed.get("event_type") != event_type:
                     continue  # Skip non-matching event
                 logger.info(
                     f"✅ JSON ({parsed['event_type']}) | key={key} | partition={partition} | offset={offset} → {parsed}")
@@ -102,6 +93,30 @@ def main():
     finally:
         # Always close the consumer to release resources
         consumer.close()
+
+
+def main():
+    """Main function that runs when the script is executed directly"""
+    kafka_topic = os.environ.get("KAFKA_TOPIC", "test-topic")
+    kafka_bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+
+    # Initialize the Kafka consumer with configuration
+    # - bootstrap_servers: Connection string for the Kafka broker
+    # - auto_offset_reset='earliest': Start reading from the beginning of the topic if no committed offset exists
+    # - enable_auto_commit=True: Automatically commit offsets
+    kafka_consumer_args = {
+        'bootstrap_servers': kafka_bootstrap_servers,
+        'auto_offset_reset': 'earliest',
+        'enable_auto_commit': True
+    }
+
+    if args.group_id:
+        kafka_consumer_args['group_id'] = args.group_id
+
+    if args.test_mode:
+        kafka_consumer_args['consumer_timeout_ms'] = 3000  # pragma: no cover
+
+    consume_events(kafka_topic, kafka_consumer_args, args.event_type, args.group_id)
 
 
 if __name__ == "__main__":

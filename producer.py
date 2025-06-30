@@ -29,10 +29,7 @@ Usage:
 EVENT_TYPES = ["note_created", "note_updated", "note_deleted"]
 
 
-def main():
-    bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-    topic = os.environ.get("KAFKA_TOPIC", "test-topic")
-
+def produce_events(bootstrap_servers, topic):
     # Initialize the Kafka producer with configuration
     # - bootstrap_servers: Connection string for the Kafka broker
     # - value_serializer: Function to convert Python objects to bytes
@@ -59,6 +56,14 @@ def main():
 
     # Ensure all messages are sent before exiting
     producer.flush()
+
+
+def main():
+    """Main function that runs when the script is executed directly"""
+    kafka_bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+    kafka_topic = os.environ.get("KAFKA_TOPIC", "test-topic")
+
+    produce_events(kafka_bootstrap_servers, kafka_topic)
 
 
 if __name__ == "__main__":

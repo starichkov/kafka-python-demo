@@ -18,7 +18,8 @@ This script demonstrates how to consume messages from an Apache Kafka topic.
 It can handle both JSON and plain text messages, providing a polyglot consumer
 that's useful in environments where different systems produce data in different formats.
 
-The consumer connects to a local Kafka broker, subscribes to 'test-topic',
+The consumer connects to a Kafka broker (configurable via KAFKA_BOOTSTRAP_SERVERS environment variable),
+subscribes to a topic (configurable via KAFKA_TOPIC environment variable, defaults to 'test-topic'),
 and processes incoming messages until interrupted with Ctrl+C.
 
 Usage:
@@ -51,9 +52,10 @@ args = parser.parse_args()
 
 def main():
     bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+    topic = os.environ.get("KAFKA_TOPIC", "test-topic")
 
     # Initialize the Kafka consumer with configuration
-    # - 'test-topic': The Kafka topic to subscribe to
+    # - topic: The Kafka topic to subscribe to (from environment variable)
     # - bootstrap_servers: Connection string for the Kafka broker
     # - auto_offset_reset='earliest': Start reading from the beginning of the topic if no committed offset exists
     # - enable_auto_commit=True: Automatically commit offsets
@@ -67,11 +69,9 @@ def main():
         consumer_args['group_id'] = args.group_id
 
     if args.test_mode:
-        consumer_timeout_ms = 3000  # pragma: no cover
-    else:
-        consumer_timeout_ms = None
+        consumer_args['consumer_timeout_ms'] = 3000  # pragma: no cover
 
-    consumer = KafkaConsumer('test-topic', consumer_timeout_ms=consumer_timeout_ms, **consumer_args)
+    consumer = KafkaConsumer(topic, **consumer_args)
 
     logger = get_logger("consumer")
 

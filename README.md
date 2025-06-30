@@ -1,4 +1,6 @@
 [![Author](https://img.shields.io/badge/Author-Vadim%20Starichkov-blue?style=for-the-badge)](https://github.com/starichkov)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/starichkov/kafka-python-demo/python.yml?style=for-the-badge)](https://github.com/starichkov/kafka-python-demo/actions/workflows/python.yml)
+[![Codecov](https://img.shields.io/codecov/c/github/starichkov/kafka-python-demo?style=for-the-badge)](https://codecov.io/gh/starichkov/kafka-python-demo)
 [![GitHub License](https://img.shields.io/github/license/starichkov/kafka-python-demo?style=for-the-badge)](https://github.com/starichkov/kafka-python-demo/blob/main/LICENSE.md)
 
 # Apache Kafka Python Demo

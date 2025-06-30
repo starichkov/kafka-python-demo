@@ -7,6 +7,7 @@ COPY requirements.txt .
 RUN apk add --no-cache build-base
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY logger.py .
 COPY consumer.py .
 
 # Set environment variable for Kafka connection

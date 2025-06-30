@@ -1,4 +1,5 @@
 from kafka import KafkaProducer
+from logger import get_logger
 import json
 import time
 import os
@@ -31,9 +32,10 @@ producer = KafkaProducer(
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
+logger = get_logger("producer")
+
 # Send 9 sample messages to the Kafka topic
 for i, event_type in enumerate(EVENT_TYPES * 3):
-
     # Create a simple message with an ID and text
     message = {"id": i, "event_type": event_type, "text": f"Note event {i} of type {event_type}"}
 
@@ -41,7 +43,7 @@ for i, event_type in enumerate(EVENT_TYPES * 3):
     producer.send('test-topic', key=event_type, value=message)
 
     # Print confirmation and wait 1 second between messages
-    print(f"Sent: key={event_type} | value={message}")
+    logger.info(f"Sent: key={event_type} | value={message}")
     time.sleep(1)
 
 # Ensure all messages are sent before exiting

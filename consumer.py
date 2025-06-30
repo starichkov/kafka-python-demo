@@ -1,4 +1,5 @@
 from kafka import KafkaConsumer
+from logger import get_logger
 import argparse
 import json
 import os
@@ -57,7 +58,9 @@ if args.group_id:
 
 consumer = KafkaConsumer('test-topic', **consumer_args)
 
-print(f"Polyglot consumer listening, consumer group: {args.group_id}\n")
+logger = get_logger("consumer")
+
+logger.info(f"Polyglot consumer listening, consumer group: {args.group_id}\n")
 
 try:
     # Continuously poll for new messages
@@ -74,12 +77,13 @@ try:
         if isinstance(parsed, dict):
             if args.event_type and parsed.get("event_type") != args.event_type:
                 continue  # Skip non-matching event
-            print(f"✅ JSON ({parsed['event_type']}) | key={key} | partition={partition} | offset={offset} → {parsed}")
+            logger.info(
+                f"✅ JSON ({parsed['event_type']}) | key={key} | partition={partition} | offset={offset} → {parsed}")
         else:
-            print(f"📦 Plain | key={key} | partition={partition} | offset={offset} → {parsed}")
+            logger.info(f"📦 Plain | key={key} | partition={partition} | offset={offset} → {parsed}")
 except KeyboardInterrupt:
     # Handle graceful shutdown on Ctrl+C
-    print("\nShutting down gracefully...")
+    logger.info("\nShutting down gracefully...")
 finally:
     # Always close the consumer to release resources
     consumer.close()

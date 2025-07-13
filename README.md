@@ -369,8 +369,11 @@ if os.getenv("COVERAGE_PROCESS_START"):
 
 ## 🧾 About TemplateTasks
 
-TemplateTasks is a developer-focused initiative by Vadim Starichkov, currently operated as sole proprietorship in Finland.  
-All code is released under open-source licenses. Ownership may be transferred to a registered business entity in the future.
+TemplateTasks is a personal software development initiative by Vadim Starichkov, focused on sharing open-source libraries, services, and technical demos.
+
+It operates independently and outside the scope of any employment.
+
+All code is released under permissive open-source licenses. The legal structure may evolve as the project grows.
 
 ## 📜 License & Attribution
 

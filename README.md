@@ -21,7 +21,7 @@ It’s designed to simulate a polyglot messaging environment, where different sy
 ## ⚙️ Requirements
 
 - Python 3.10+
-- Docker & Docker Compose (for container-based setup)
+- Docker & Docker Compose (for container-based setup) - more details could be found in the [separate section](documentation/docker.md).
 - Apache Kafka (external or Dockerized)
 
 Install Python dependencies:
@@ -44,7 +44,7 @@ docker run -d --name kafka-391 \
   apache/kafka:3.9.1
 ```
 
-More information about helper scripts Kafka provides could be found in a [separate section](documentation/kafka.md).
+More information about helper scripts Kafka provides could be found in the [separate section](documentation/kafka.md).
 
 ### 🟢 Run Producer
 
@@ -123,39 +123,9 @@ Note: If you have more partitions than consumers, some consumers may receive mul
 
 ---
 
-## 🧪 Testing & Coverage
+## 🧪 Running Tests & Coverage
 
-Install dev requirements:
-
-```bash
-pip install -r requirements-dev.txt
-```
-
-### Run Tests
-
-```bash
-pytest
-```
-
-### With Coverage
-
-```bash
-export COVERAGE_PROCESS_START=$(pwd)/.coveragerc
-pytest --cov --cov-report=term-missing
-coverage html
-xdg-open htmlcov/index.html
-```
-
-### Subprocess Coverage Setup
-
-At the top of `producer.py` and `consumer.py`:
-
-```python
-import os
-if os.getenv("COVERAGE_PROCESS_START"):
-    import coverage
-    coverage.process_startup()
-```
+Details could be found in the [separate section](documentation/tests.md).
 
 ---
 
@@ -186,64 +156,6 @@ kafka-python-demo/
 
 ---
 
-## 🐳 Docker Setup
-
-This project includes Docker support to run the entire stack (Kafka, producer, and consumer) in containers.
-
-### Prerequisites
-
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-
-### Running with Docker Compose
-
-1. Build and start all services:
-
-    ```shell
-    docker-compose up -d
-    ```
-
-    This will start:
-    - Kafka (using the official Apache Kafka image in KRaft mode without Zookeeper)
-    - Producer (which will start sending messages immediately)
-    - Consumer (which will start consuming messages immediately)
-
-    The Dockerfiles for the producer and consumer automatically modify the Python scripts to use environment variables for Kafka connection, making them ready to connect to the Kafka service in the Docker network.
-
-2. View logs from the consumer:
-
-    ```shell
-    docker logs -f kafka-consumer
-    ```
-
-3. View logs from the producer:
-
-    ```shell
-    docker logs -f kafka-producer
-    ```
-
-### Customizing the Consumer
-
-You can customize the consumer by modifying the `command` section in the `docker-compose.yml` file:
-
-```yaml
-consumer:
-  # ... other settings ...
-  command: ["--group-id", "demo-group"]
-```
-
-Available options:
-- `--group-id` or `-g`: Set a consumer group ID
-- `--event-type` or `-e`: Filter by event type
-
-### Stopping the Services
-
-To stop all services:
-
-```shell
-docker-compose down
-```
-
 ## 🔗 Links
 
 - [Apache Kafka (Official)](https://kafka.apache.org/)
@@ -252,72 +164,6 @@ docker-compose down
 - [Kafka Python Client – kafka-python (GitHub)](https://github.com/dpkp/kafka-python)
 - [Docker Documentation](https://docs.docker.com/)
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
-
----
-
-## 🧪 Running Tests & Coverage
-
-This project uses [pytest](https://docs.pytest.org/) and [testcontainers](https://pypi.org/project/testcontainers/) for integration testing, along with [coverage.py](https://coverage.readthedocs.io/) to track test coverage — including subprocesses.
-
-### ✅ Requirements
-
-Install test dependencies:
-
-```bash
-pip install -r requirements-dev.txt
-```
-
-### ▶️ Run All Tests
-
-Run all tests (including those that spin up a Kafka container):
-
-```bash
-pytest
-```
-
-### 🧪 Run Integration Test Manually
-
-You can run the integration test that uses `testcontainers` with Kafka:
-
-```bash
-pytest tests/test_kafka_integration.py
-```
-
-### ⚙️ Running Tests With Coverage (subprocess-safe)
-
-To enable coverage tracking for both main tests and subprocesses:
-
-#### 1. Export the coverage config path:
-
-```bash
-export COVERAGE_PROCESS_START=$(pwd)/.coveragerc
-```
-
-#### 2. Run tests with coverage:
-
-```bash
-pytest --cov --cov-report=term-missing
-```
-
-#### 3. Generate an HTML coverage report (optional):
-
-```bash
-coverage html
-xdg-open htmlcov/index.html  # or open htmlcov/index.html manually
-```
-
-### 🧠 Subprocess Coverage Reminder
-
-To properly collect coverage from subprocesses (like `subprocess.run(["python", "consumer.py"])`):
-
-- Add this to the top of any script (like `producer.py`, `consumer.py`):
-
-```python
-import os
-if os.getenv("COVERAGE_PROCESS_START"):
-    import coverage
-    coverage.process_startup()
-```
 
 ---
 

@@ -299,7 +299,7 @@ export COVERAGE_PROCESS_START=$(pwd)/.coveragerc
 pytest --cov --cov-report=term-missing
 ```
 
-#### 3. Generate HTML coverage report (optional):
+#### 3. Generate an HTML coverage report (optional):
 
 ```bash
 coverage html

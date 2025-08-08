@@ -7,7 +7,7 @@ variables. The loggers output to stdout with timestamps and are designed to work
 development and production environments.
 
 The LOG_LEVEL environment variable can be set to control the logging level (DEBUG, INFO, WARNING, ERROR).
-If not specified, it defaults to INFO level.
+If not specified, it defaults to the INFO level.
 
 Example:
     >>> from logger import get_logger

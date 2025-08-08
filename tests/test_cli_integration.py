@@ -79,7 +79,7 @@ def test_producer_and_consumer_via_scripts(tmp_path, kafka_container):
 
 def test_plain_text_consumer(tmp_path, kafka_container):
     """
-    Test consumer's ability to handle plain text messages (polyglot functionality).
+    Test a consumer's ability to handle plain text messages (polyglot functionality).
 
     This test verifies that the consumer script can properly process non-JSON messages
     by sending a plain text message to Kafka and confirming the consumer displays it
@@ -87,10 +87,10 @@ def test_plain_text_consumer(tmp_path, kafka_container):
 
     Args:
         tmp_path: pytest fixture providing temporary directory path
-        kafka_container: pytest fixture providing Kafka testcontainer instance
+        kafka_container: pytest fixture providing Kafka Testcontainer instance
 
     Asserts:
-        - Consumer output contains "📦 Plain" prefix for plain text messages
+        - Consumer output contains the "📦 Plain" prefix for plain text messages
         - Consumer output contains the original plain text message content
     """
     topic = "test-topic-plain-text-consumer"

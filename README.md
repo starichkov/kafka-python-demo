@@ -158,6 +158,7 @@ kafka-python-demo/
 
 ## 🔗 Links
 
+- [Status of Python versions](https://devguide.python.org/versions/)
 - [Apache Kafka (Official)](https://kafka.apache.org/)
 - [Kafka Quickstart Guide](https://kafka.apache.org/quickstart)
 - [Kafka Docker Image (Official)](https://hub.docker.com/r/apache/kafka)

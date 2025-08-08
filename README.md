@@ -1,27 +1,32 @@
 [![Author](https://img.shields.io/badge/Author-Vadim%20Starichkov-blue?style=for-the-badge)](https://github.com/starichkov)
+[![GitHub License](https://img.shields.io/github/license/starichkov/kafka-python-demo?style=for-the-badge)](https://github.com/starichkov/kafka-python-demo/blob/main/LICENSE.md)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/starichkov/kafka-python-demo/python.yml?style=for-the-badge)](https://github.com/starichkov/kafka-python-demo/actions/workflows/python.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/starichkov/kafka-python-demo?style=for-the-badge)](https://codecov.io/gh/starichkov/kafka-python-demo)
-[![GitHub License](https://img.shields.io/github/license/starichkov/kafka-python-demo?style=for-the-badge)](https://github.com/starichkov/kafka-python-demo/blob/main/LICENSE.md)
 
 # Apache Kafka Python Demo
 
-A minimal Apache Kafka demo using Python to send and receive messages. This project includes:
+## 🧩 Overview
 
-- A producer that sends JSON messages
-- A consumer that can handle both JSON and plain text messages
+A minimal Apache Kafka demo using Python featuring:
+- A **JSON-producing** `producer.py`
+- A **format-tolerant** `consumer.py` supporting JSON & plain text
+- Partition-awareness, message keying, and consumer group support
+- Integration testing via `Testcontainers`
+- GitHub Actions & Codecov integration
 
 It’s designed to simulate a polyglot messaging environment, where different systems or services might produce data in different formats to the same Apache Kafka topic.
 
 ---
 
-## 🧰 Requirements
+## ⚙️ Requirements
 
-- Python 3.7 or later
-- A running Apache Kafka broker (e.g., via Docker)
+- Python 3.10+
+- Docker & Docker Compose (for container-based setup)
+- Apache Kafka (external or Dockerized)
 
-To install dependencies:
+Install Python dependencies:
 
-```shell
+```bash
 pip install -r requirements.txt
 ```
 
@@ -39,115 +44,25 @@ docker run -d --name kafka-391 \
   apache/kafka:3.9.1
 ```
 
-Or use another Apache Kafka image you prefer. Ensure port `9092` is available.
+More information about helper scripts Kafka provides could be found in a [separate section](documentation/kafka.md).
 
-Connect to the container:
+### 🟢 Run Producer
 
-```shell
-docker exec -it kafka-391 bash
-```
-
-Proceed to the directory with scripts:
-
-```shell
-cd /opt/kafka/bin
-```
-
-And create the first topic to produce messages to:
-
-```shell
-./kafka-topics.sh --create \
-  --topic test-topic \
-  --bootstrap-server localhost:9092 \
-  --partitions 1 \
-  --replication-factor 1
-```
-
-Now run producer scripts and type several messages into it:
-
-```shell
-./kafka-console-producer.sh \
-  --topic test-topic \
-  --bootstrap-server localhost:9092
-```
-
-for example:
-
-```
->First message
->Second message
->Tired, shutting down.
-```
-
-Let's check messages by running consumer script:
-
-```shell
-./kafka-console-consumer.sh \
-  --topic test-topic \
-  --from-beginning \
-  --bootstrap-server localhost:9092
-```
-
-You should be able to see all your messages:
-
-```
-First message
-Second message
-Tired, shutting down.
-```
-
----
-
-### 2. Run the Producer
-
-The `producer.py` script sends JSON messages to the topic `test-topic`. Each message includes an `event_type`, chosen randomly from:
-
-- `note_created`
-- `note_updated`
-- `note_deleted`
-
-```shell
+```bash
 python producer.py
 ```
 
-Example output:
+Produces random JSON events (`note_created`, `note_updated`, `note_deleted`) with message keys for partitioning.
 
-```
-Sent: {'id': 0, 'event_type': 'note_deleted', 'text': 'Note event 0 of type note_deleted'}
-Sent: {'id': 1, 'event_type': 'note_created', 'text': 'Note event 1 of type note_created'}
-Sent: {'id': 2, 'event_type': 'note_deleted', 'text': 'Note event 2 of type note_deleted'}
-...
-```
-
----
-
-### 3. Run the Consumer
-
-The `consumer.py` script reads messages from the topic and parses them. It:
-
-- Parses and displays JSON messages with structured output
-- Falls back to plain text for non-JSON messages
-- Accepts an optional `--event-type` argument to filter messages
-
-Examples:
+### 🔵 Run Consumer
 
 ```bash
-python consumer.py                             # consume all messages
-python consumer.py --event-type note_created   # filter by event_type
+python consumer.py                   # All events
+python consumer.py --event-type X   # Filtered by event_type
+python consumer.py --group-id my-group
 ```
 
-Example output:
-
-```
-Polyglot consumer listening...
-
-✅ JSON (note_deleted): {'id': 0, 'event_type': 'note_deleted', 'text': 'Note event 0 of type note_deleted'}
-✅ JSON (note_created): {'id': 1, 'event_type': 'note_created', 'text': 'Note event 1 of type note_created'}
-✅ JSON (note_deleted): {'id': 2, 'event_type': 'note_deleted', 'text': 'Note event 2 of type note_deleted'}
-✅ JSON (note_updated): {'id': 3, 'event_type': 'note_updated', 'text': 'Note event 3 of type note_updated'}
-```
-
-Use `Ctrl+C` to stop the consumer gracefully.
+Displays event type, partition, and offset info.
 
 ---
 
@@ -208,16 +123,55 @@ Note: If you have more partitions than consumers, some consumers may receive mul
 
 ---
 
+## 🧪 Testing & Coverage
+
+Install dev requirements:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+### Run Tests
+
+```bash
+pytest
+```
+
+### With Coverage
+
+```bash
+export COVERAGE_PROCESS_START=$(pwd)/.coveragerc
+pytest --cov --cov-report=term-missing
+coverage html
+xdg-open htmlcov/index.html
+```
+
+### Subprocess Coverage Setup
+
+At the top of `producer.py` and `consumer.py`:
+
+```python
+import os
+if os.getenv("COVERAGE_PROCESS_START"):
+    import coverage
+    coverage.process_startup()
+```
+
+---
+
 ## 📂 Project Structure
 
 ```
 kafka-python-demo/
 ├── producer.py          # Sends JSON messages to Apache Kafka
 ├── consumer.py          # Reads and parses both JSON and plain text messages
+├── logger.py            # Logging configuration
 ├── requirements.txt     # Python dependencies
+├── requirements-dev.txt # Python dependencies for development and testing
 ├── producer.Dockerfile  # Dockerfile for the producer service
 ├── consumer.Dockerfile  # Dockerfile for the consumer service
 ├── docker-compose.yml   # Docker Compose configuration for running the entire stack
+├── tests/
 ├── .gitignore           # Python cache and venv exclusions
 └── README.md            # Project overview and usage instructions
 ```

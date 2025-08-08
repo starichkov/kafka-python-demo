@@ -1,3 +1,19 @@
+"""
+Integration Tests for Kafka Producer and Consumer CLI Scripts
+
+This test module provides end-to-end integration testing for the Kafka producer and consumer
+command-line scripts. It uses testcontainers to spin up a real Kafka instance and tests
+the complete workflow of producing and consuming messages through the CLI scripts.
+
+The tests cover:
+- Producer script generating JSON messages and a consumer script processing them
+- Consumer script handling plain text messages (polyglot functionality)
+- Proper message formatting and logging output verification
+
+These tests ensure that the CLI scripts work correctly in a real Kafka environment
+and can handle different message formats as intended.
+"""
+
 from testcontainers.kafka import KafkaContainer
 import subprocess
 import time
@@ -14,6 +30,21 @@ def kafka_container():
 
 
 def test_producer_and_consumer_via_scripts(tmp_path, kafka_container):
+    """
+    Test the end-to-end workflow of producer and consumer CLI scripts.
+
+    This test runs the producer.py script to generate sample JSON messages,
+    then runs the consumer.py script in test mode to consume those messages.
+    It verifies that the consumer correctly processes the JSON messages
+    produced by the producer script.
+
+    Args:
+        tmp_path: pytest fixture providing temporary directory path
+        kafka_container: pytest fixture providing Kafka testcontainer instance
+
+    Asserts:
+        - Consumer output contains "note event" indicating successful message processing
+    """
     topic = "test-topic-producer-consumer-scripts"
 
     bootstrap_servers = kafka_container.get_bootstrap_server()
@@ -47,6 +78,21 @@ def test_producer_and_consumer_via_scripts(tmp_path, kafka_container):
 
 
 def test_plain_text_consumer(tmp_path, kafka_container):
+    """
+    Test consumer's ability to handle plain text messages (polyglot functionality).
+
+    This test verifies that the consumer script can properly process non-JSON messages
+    by sending a plain text message to Kafka and confirming the consumer displays it
+    with the correct "📦 Plain" prefix, demonstrating the polyglot consumer capability.
+
+    Args:
+        tmp_path: pytest fixture providing temporary directory path
+        kafka_container: pytest fixture providing Kafka testcontainer instance
+
+    Asserts:
+        - Consumer output contains "📦 Plain" prefix for plain text messages
+        - Consumer output contains the original plain text message content
+    """
     topic = "test-topic-plain-text-consumer"
 
     bootstrap_servers = kafka_container.get_bootstrap_server()

@@ -30,6 +30,22 @@ EVENT_TYPES = ["note_created", "note_updated", "note_deleted"]
 
 
 def produce_events(bootstrap_servers, topic):
+    """
+    Produce a series of sample events to a Kafka topic.
+
+    This function creates a Kafka producer and sends 9 sample messages to the specified
+    topic. Each message contains JSON data with an ID, event type, and descriptive text.
+    The events cycle through three types: note_created, note_updated, and note_deleted.
+
+    Args:
+        bootstrap_servers (str): Comma-separated list of Kafka broker addresses
+                                (e.g., 'localhost:9092' or 'broker1:9092,broker2:9092')
+        topic (str): Name of the Kafka topic to send messages to
+
+    Example:
+        >>> produce_events('localhost:9092', 'my-topic')
+        # Sends 9 messages with different event types to 'my-topic'
+    """
     # Initialize the Kafka producer with configuration
     # - bootstrap_servers: Connection string for the Kafka broker
     # - value_serializer: Function to convert Python objects to bytes

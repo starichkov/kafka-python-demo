@@ -61,6 +61,7 @@ def consume_events(topic, consumer_args, event_type=None, group_id=None):
     :param topic: Kafka topic to consume messages from.
     :param consumer_args: Dictionary of arguments to configure the KafkaConsumer.
     :param event_type: Optional. Filters messages by the `event_type` attribute if it's included in the message payload.
+    :param group_id: Optional. Kafka consumer group ID for identifying the consumer group in logs and operations.
     """
     consumer = KafkaConsumer(topic, **consumer_args)
 

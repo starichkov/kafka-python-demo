@@ -15,7 +15,6 @@ jobs:
         python-version: [ "3.10", "3.11", "3.12", "3.13" ]
 
     env:
-      COVERAGE_PROCESS_START: ${{ github.workspace }}/.coveragerc
       TESTCONTAINERS_RYUK_DISABLED: true
 
     steps:

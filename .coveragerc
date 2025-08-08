@@ -1,7 +1,5 @@
 [run]
 source = .
-parallel = true
-concurrency = multiprocessing
 branch = true
 omit =
     */tests/*

@@ -191,3 +191,25 @@ https://github.com/starichkov/kafka-python-demo
 ```
 
 **Copyright © 2025 Vadim Starichkov, TemplateTasks**
+
+
+---
+
+## 🧪 Note on a test warning that was fixed
+
+During tests, pytest emitted a warning like this:
+
+PytestUnhandledThreadExceptionWarning: Exception in thread Thread-1 (stop_processing)
+  KeyboardInterrupt: Demo timeout
+
+Cause:
+- In example_resilient_messaging.py the error-demo used a background thread that raised KeyboardInterrupt after a timeout to stop the demo.
+- Raising exceptions from background threads is treated by pytest as an unhandled thread exception, hence the warning.
+
+Fix:
+- The timer threads in run_error_demonstration were changed to perform a graceful shutdown by calling close() on the respective consumer (if available) instead of raising KeyboardInterrupt from the thread.
+- The main flow still handles a user-triggered KeyboardInterrupt normally, and summary output remains unchanged. A graceful path was added to print the same summary when shutdown occurs without an interrupt.
+
+Why this matters:
+- Avoids unhandled thread exception warnings in CI/test output.
+- Promotes a cleaner shutdown model that better mirrors production behavior.

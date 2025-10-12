@@ -450,7 +450,8 @@ class TestModuleLevelCodeIntegration:
 
     def test_consumer_argument_parser_setup(self):
         """Test that the consumer argument parser is properly configured"""
-        parser_actions = [action.dest for action in consumer.parser._actions]
+        parser = consumer.build_parser()
+        parser_actions = [action.dest for action in parser._actions]
 
         assert 'event_type' in parser_actions
         assert 'group_id' in parser_actions
@@ -480,8 +481,9 @@ class TestArgumentParsingIntegration:
 
     def test_consumer_with_all_arguments(self):
         """Test consumer argument parsing with all options"""
-        from consumer import parser
+        from consumer import build_parser
 
+        parser = build_parser()
         args = parser.parse_args([
             '--event-type', 'test_event',
             '--group-id', 'test_group',
@@ -494,8 +496,9 @@ class TestArgumentParsingIntegration:
 
     def test_consumer_with_no_arguments(self):
         """Test consumer argument parsing with no arguments"""
-        from consumer import parser
+        from consumer import build_parser
 
+        parser = build_parser()
         args = parser.parse_args([])
 
         assert args.event_type is None
@@ -529,11 +532,12 @@ class TestMainFunctionCoverage:
     @patch.dict(os.environ, {'KAFKA_TOPIC': 'custom-topic', 'KAFKA_BOOTSTRAP_SERVERS': 'custom:9092'})
     def test_main_function_with_arguments_and_custom_env(self, mock_consume_events):
         """Test main function execution with custom environment variables and arguments"""
-        # Mock the args object directly instead of reloading
-        with patch('consumer.args') as mock_args:
-            mock_args.group_id = 'test-group'
-            mock_args.event_type = 'test-event'
-            mock_args.test_mode = False
+        # Mock the parser to control parsed args
+        with patch('consumer.build_parser') as mock_build_parser:
+            from types import SimpleNamespace
+            mock_parser = Mock()
+            mock_parser.parse_args.return_value = SimpleNamespace(group_id='test-group', event_type='test-event', test_mode=False)
+            mock_build_parser.return_value = mock_parser
 
             consumer.main()
 
@@ -550,11 +554,12 @@ class TestMainFunctionCoverage:
     @patch('consumer.consume_events')
     def test_main_function_with_test_mode(self, mock_consume_events):
         """Test main function execution with test mode argument"""
-        # Mock the args object to simulate test mode
-        with patch('consumer.args') as mock_args:
-            mock_args.group_id = None
-            mock_args.event_type = None
-            mock_args.test_mode = True
+        # Mock the parser to simulate test mode via parsed args
+        with patch('consumer.build_parser') as mock_build_parser:
+            from types import SimpleNamespace
+            mock_parser = Mock()
+            mock_parser.parse_args.return_value = SimpleNamespace(group_id=None, event_type=None, test_mode=True)
+            mock_build_parser.return_value = mock_parser
 
             consumer.main()
 

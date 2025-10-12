@@ -11,11 +11,14 @@ from logger import get_logger
 import argparse
 import json
 
-parser = argparse.ArgumentParser(description="Kafka Event Consumer")
-parser.add_argument("-e", "--event-type", help="Filter by event_type (optional)", required=False)
-parser.add_argument("-g", "--group-id", help="Kafka consumer group ID (optional)", required=False)
-parser.add_argument("-t", "--test-mode", action="store_true")
-args = parser.parse_args()
+
+def build_parser():
+    """Build and return the argument parser for the consumer CLI."""
+    parser = argparse.ArgumentParser(description="Kafka Event Consumer")
+    parser.add_argument("-e", "--event-type", help="Filter by event_type (optional)", required=False)
+    parser.add_argument("-g", "--group-id", help="Kafka consumer group ID (optional)", required=False)
+    parser.add_argument("-t", "--test-mode", action="store_true")
+    return parser
 
 """
 Apache Kafka Consumer Demo
@@ -98,6 +101,9 @@ def consume_events(topic, consumer_args, event_type=None, group_id=None):
 
 def main():
     """Main function that runs when the script is executed directly"""
+    parser = build_parser()
+    args = parser.parse_args()
+
     kafka_topic = os.environ.get("KAFKA_TOPIC", "test-topic")
     kafka_bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
 

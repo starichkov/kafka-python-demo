@@ -29,7 +29,7 @@ from logger import get_logger
 @pytest.fixture(scope="module")
 def kafka_container():
     """Fixture that provides a reusable Kafka container for all tests."""
-    with KafkaContainer(image="confluentinc/cp-kafka:7.9.2") as kafka:
+    with KafkaContainer(image="confluentinc/cp-kafka:7.9.3") as kafka:
         yield kafka
 
 

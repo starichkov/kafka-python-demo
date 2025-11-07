@@ -14,4 +14,8 @@ COPY producer.py .
 ENV KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 ENV KAFKA_TOPIC=test-topic
 
-CMD ["python", "-u", "producer.py"]
+# Create an unprivileged user and switch to it
+RUN addgroup -S app && adduser -S app -G app && chown -R app:app /app
+USER app
+
+ENTRYPOINT ["python", "-u", "producer.py"]

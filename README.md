@@ -20,7 +20,7 @@ It’s designed to simulate a polyglot messaging environment, where different sy
 
 ## ⚙️ Requirements
 
-- Python 3.10+
+- Python 3.9+
 - Docker & Docker Compose (for container-based setup) - more details could be found in the [separate section](documentation/docker.md).
 - Apache Kafka (external or Dockerized)
 

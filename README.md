@@ -127,6 +127,13 @@ Note: If you have more partitions than consumers, some consumers may receive mul
 
 Details could be found in the [separate section](documentation/tests.md).
 
+Additionally, you can run a local Docker Compose smoke test that mirrors the CI job:
+
+```
+scripts/compose_smoke_test.sh        # real run
+scripts/compose_smoke_test.sh --dry-run
+```
+
 ---
 
 ## 📂 Project Structure

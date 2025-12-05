@@ -9,6 +9,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY logger.py .
 COPY producer.py .
+COPY serialization ./serialization
 
 # Set environment variables for Kafka connection
 ENV KAFKA_BOOTSTRAP_SERVERS=kafka:9092

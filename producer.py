@@ -8,8 +8,8 @@ if os.getenv("COVERAGE_PROCESS_START"):
 
 from kafka import KafkaProducer
 from logger import get_logger
-import json
 import time
+from serialization import SERIALIZERS
 
 """
 Apache Kafka Producer Demo
@@ -52,8 +52,8 @@ def produce_events(bootstrap_servers, topic):
     #   (in this case, converting dictionaries to JSON strings and then to UTF-8 bytes)
     producer = KafkaProducer(
         bootstrap_servers=bootstrap_servers,
-        key_serializer=lambda k: k.encode('utf-8'),
-        value_serializer=lambda v: json.dumps(v).encode('utf-8')
+        key_serializer=lambda k: k.encode("utf-8"),
+        value_serializer=SERIALIZERS["json"],
     )
 
     logger = get_logger("producer")

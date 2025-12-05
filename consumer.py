@@ -9,7 +9,7 @@ if os.getenv("COVERAGE_PROCESS_START"):
 from kafka import KafkaConsumer
 from logger import get_logger
 import argparse
-import json
+from serialization import DESERIALIZERS
 
 
 def build_parser():
@@ -46,10 +46,7 @@ def try_parse_json(value: bytes):
     Returns:
         dict or str: Parsed JSON as dictionary if successful, or string if parsing fails
     """
-    try:
-        return json.loads(value.decode('utf-8'))
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return value.decode('utf-8', errors='replace')
+    return DESERIALIZERS["json_or_text"](value)
 
 
 def consume_events(topic, consumer_args, event_type=None, group_id=None):

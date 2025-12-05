@@ -126,11 +126,11 @@ deactivate
 
 ```bash
 # Create with specific Python version
-python3.9 -m venv venv39
+python3.10 -m venv venv310
 python3.11 -m venv venv311
 
 # Using virtualenv (if installed)
-virtualenv -p python3.9 venv39
+virtualenv -p python3.12 venv312
 ```
 
 ## 🔍 Package Information

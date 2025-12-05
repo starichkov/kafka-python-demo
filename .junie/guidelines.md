@@ -11,7 +11,7 @@ A minimal Apache Kafka demo using Python. It showcases a JSON-producing producer
   - Uses the event_type as the Kafka key (partitioning by key, preserves per-key ordering).
   - Environment variables:
     - KAFKA_BOOTSTRAP_SERVERS (default: localhost:9092)
-    - KAFKA_TOPIC (default: test-topic)
+    - KAFKA_TOPIC (default: notes-topic)
   - Event types used: note_created, note_updated, note_deleted.
 
 - consumer.py
@@ -78,7 +78,7 @@ python consumer.py --group-id demo    # observe consumer group behavior
 - HTML report is written to htmlcov/index.html.
 
 ## Configuration defaults
-- Topic name: test-topic (override via KAFKA_TOPIC)
+- Topic name: notes-topic (override via KAFKA_TOPIC)
 - Bootstrap servers: localhost:9092 (override via KAFKA_BOOTSTRAP_SERVERS)
 - Event types: note_created | note_updated | note_deleted
 

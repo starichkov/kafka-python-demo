@@ -28,7 +28,7 @@ It can handle both JSON and plain text messages, providing a polyglot consumer
 that's useful in environments where different systems produce data in different formats.
 
 The consumer connects to a Kafka broker (configurable via KAFKA_BOOTSTRAP_SERVERS environment variable),
-subscribes to a topic (configurable via KAFKA_TOPIC environment variable, defaults to 'test-topic'),
+subscribes to a topic (configurable via KAFKA_TOPIC environment variable, defaults to 'notes-topic'),
 and processes incoming messages until interrupted with Ctrl+C.
 
 Usage:
@@ -101,7 +101,7 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
 
-    kafka_topic = os.environ.get("KAFKA_TOPIC", "test-topic")
+    kafka_topic = os.environ.get("KAFKA_TOPIC", "notes-topic")
     kafka_bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
 
     # Initialize the Kafka consumer with configuration

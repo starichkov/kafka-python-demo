@@ -364,7 +364,7 @@ class TestProducerMainIntegration:
         # We can't easily test localhost:9092 with testcontainers, so we'll just test the function call
         with patch('producer.produce_events') as mock_produce:
             producer.main()
-            mock_produce.assert_called_once_with('localhost:9092', 'test-topic')
+            mock_produce.assert_called_once_with('localhost:9092', 'notes-topic')
 
 
 class TestLoggerIntegration:
@@ -510,7 +510,7 @@ class TestMainFunctionCoverage:
     """Tests to ensure complete coverage of the main function and exception handling"""
 
     @patch('consumer.consume_events')
-    @patch.dict(os.environ, {'KAFKA_TOPIC': 'test-topic', 'KAFKA_BOOTSTRAP_SERVERS': 'localhost:9092'})
+    @patch.dict(os.environ, {'KAFKA_TOPIC': 'notes-topic', 'KAFKA_BOOTSTRAP_SERVERS': 'localhost:9092'})
     @patch.object(sys, 'argv', ['consumer.py'])
     def test_main_function_execution(self, mock_consume_events):
         """Test main function execution with default environment variables"""
@@ -521,7 +521,7 @@ class TestMainFunctionCoverage:
         args, kwargs = mock_consume_events.call_args
 
         topic, consumer_args, event_type, group_id = args
-        assert topic == 'test-topic'
+        assert topic == 'notes-topic'
         assert consumer_args['bootstrap_servers'] == 'localhost:9092'
         assert consumer_args['auto_offset_reset'] == 'earliest'
         assert consumer_args['enable_auto_commit'] is True

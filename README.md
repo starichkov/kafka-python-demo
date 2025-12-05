@@ -157,14 +157,14 @@ kafka-python-demo/
 
 ## 📌 Notes
 
-- Topic name is configurable via environment variable `KAFKA_TOPIC` (default: `test-topic`).
+- Topic name is configurable via environment variable `KAFKA_TOPIC` (default: `notes-topic`).
 - You can edit the scripts to change topic names or message structures.
 - This setup is great for local experimentation or as a starting point for more advanced Apache Kafka integrations.
 
 ### Configuration
 
 - `KAFKA_BOOTSTRAP_SERVERS` — Kafka broker(s), default: `localhost:9092`
-- `KAFKA_TOPIC` — topic to produce/consume, default: `test-topic`
+- `KAFKA_TOPIC` — topic to produce/consume, default: `notes-topic`
 
 Examples:
 

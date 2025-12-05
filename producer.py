@@ -16,7 +16,7 @@ Apache Kafka Producer Demo
 
 This script demonstrates how to produce JSON messages to an Apache Kafka topic.
 It creates a series of simple JSON messages and sends them to a topic
-(configurable via KAFKA_TOPIC environment variable, defaults to 'test-topic')
+(configurable via KAFKA_TOPIC environment variable, defaults to 'notes-topic')
 on a Kafka broker (configurable via KAFKA_BOOTSTRAP_SERVERS environment variable).
 
 The producer is configured to automatically serialize Python dictionaries to JSON
@@ -77,7 +77,7 @@ def produce_events(bootstrap_servers, topic):
 def main():
     """Main function that runs when the script is executed directly"""
     kafka_bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-    kafka_topic = os.environ.get("KAFKA_TOPIC", "test-topic")
+    kafka_topic = os.environ.get("KAFKA_TOPIC", "notes-topic")
 
     produce_events(kafka_bootstrap_servers, kafka_topic)
 

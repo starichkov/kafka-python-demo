@@ -22,11 +22,11 @@ Proceed to the directory with scripts:
 cd /opt/kafka/bin
 ```
 
-And create the first topic to produce messages to:
+And create the first topic to produce messages to (configurable via env var `KAFKA_TOPIC`, defaulting to `test-topic`):
 
 ```shell
 ./kafka-topics.sh --create \
-  --topic test-topic \
+  --topic ${KAFKA_TOPIC:-test-topic} \
   --bootstrap-server localhost:9092 \
   --partitions 1 \
   --replication-factor 1
@@ -36,7 +36,7 @@ Now run producer scripts and type several messages into it:
 
 ```shell
 ./kafka-console-producer.sh \
-  --topic test-topic \
+  --topic ${KAFKA_TOPIC:-test-topic} \
   --bootstrap-server localhost:9092
 ```
 
@@ -52,7 +52,7 @@ Let's check messages by running a consumer script:
 
 ```shell
 ./kafka-console-consumer.sh \
-  --topic test-topic \
+  --topic ${KAFKA_TOPIC:-test-topic} \
   --from-beginning \
   --bootstrap-server localhost:9092
 ```

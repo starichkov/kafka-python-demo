@@ -157,9 +157,26 @@ kafka-python-demo/
 
 ## 📌 Notes
 
-- Topic name is hardcoded as `test-topic` in both scripts.
+- Topic name is configurable via environment variable `KAFKA_TOPIC` (default: `test-topic`).
 - You can edit the scripts to change topic names or message structures.
 - This setup is great for local experimentation or as a starting point for more advanced Apache Kafka integrations.
+
+### Configuration
+
+- `KAFKA_BOOTSTRAP_SERVERS` — Kafka broker(s), default: `localhost:9092`
+- `KAFKA_TOPIC` — topic to produce/consume, default: `test-topic`
+
+Examples:
+
+```bash
+# Run locally with a custom topic
+export KAFKA_TOPIC=my-topic
+python producer.py
+python consumer.py
+
+# Using Docker Compose (host env is picked up by compose)
+KAFKA_TOPIC=my-topic docker compose up -d
+```
 
 ---
 

@@ -28,8 +28,8 @@ services:
         condition: service_healthy
     command: >
       bash -c "
-        echo 'Creating topic test-topic...' &&
-        /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic test-topic --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1 &&
+        echo 'Creating topic ${KAFKA_TOPIC:-test-topic}...' &&
+        /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic ${KAFKA_TOPIC:-test-topic} --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1 &&
         echo 'Topic creation completed.'
       "
     restart: on-failure
@@ -46,7 +46,7 @@ services:
         condition: service_completed_successfully
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC: test-topic
+      KAFKA_TOPIC: ${KAFKA_TOPIC:-test-topic}
     restart: on-failure
 
   consumer:
@@ -61,7 +61,7 @@ services:
         condition: service_completed_successfully
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_TOPIC: test-topic
+      KAFKA_TOPIC: ${KAFKA_TOPIC:-test-topic}
     restart: on-failure
     # You can pass arguments to the consumer here
     # command: ["--group-id", "demo-group"]

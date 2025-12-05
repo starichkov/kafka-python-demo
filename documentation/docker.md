@@ -12,7 +12,7 @@ This project includes Docker support to run the entire stack (Kafka, producer, a
 1. Build and start all services:
 
     ```shell
-    docker-compose up -d
+    docker compose up -d
     ```
 
     This will start:
@@ -20,7 +20,27 @@ This project includes Docker support to run the entire stack (Kafka, producer, a
     - Producer (which will start sending messages immediately)
     - Consumer (which will start consuming messages immediately)
 
-    The Dockerfiles for the producer and consumer automatically modify the Python scripts to use environment variables for Kafka connection, making them ready to connect to the Kafka service in the Docker network.
+    The Dockerfiles and docker-compose use environment variables for Kafka connection, making them ready to connect to the Kafka service in the Docker network.
+
+2. Use a custom topic (optional):
+
+    You can override the topic used by producer and consumer by setting `KAFKA_TOPIC` before running Compose:
+
+    ```shell
+    KAFKA_TOPIC=my-topic docker compose up -d
+    ```
+
+    Or create a `.env` file in the project root:
+
+    ```env
+    KAFKA_TOPIC=my-topic
+    ```
+
+    Then run:
+
+    ```shell
+    docker compose up -d
+    ```
 
 2. View logs from the consumer:
 
@@ -53,5 +73,5 @@ Available options:
 To stop all services:
 
 ```shell
-docker-compose down
+docker compose down
 ```

@@ -11,9 +11,11 @@ COPY logger.py .
 COPY producer.py .
 COPY serialization ./serialization
 
-# Set environment variables for Kafka connection
-ENV KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-ENV KAFKA_TOPIC=test-topic
+# Allow overriding Kafka connection via build args or env at runtime
+ARG KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+ARG KAFKA_TOPIC=test-topic
+ENV KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+ENV KAFKA_TOPIC=${KAFKA_TOPIC}
 
 # Create an unprivileged user and switch to it
 RUN addgroup -S app && adduser -S app -G app && chown -R app:app /app

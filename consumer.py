@@ -9,7 +9,7 @@ if os.getenv("COVERAGE_PROCESS_START"):
 from kafka import KafkaConsumer
 from logger import get_logger
 import argparse
-from serialization import DESERIALIZERS
+from serialization import DESERIALIZERS, deserializer_for_mime
 
 
 def build_parser():
@@ -72,8 +72,52 @@ def consume_events(topic, consumer_args, event_type=None, group_id=None):
     try:
         # Continuously poll for new messages
         for message in consumer:
-            # Try to parse the message as JSON, fall back to plain text if not valid JSON
-            parsed = try_parse_json(message.value)
+            # Choose deserializer by content-type header if present; fallback to JSON-or-text
+            mime = None
+            try:
+                # headers: list[tuple[str, bytes]] (kafka-python)
+                if getattr(message, "headers", None):
+                    for k, v in message.headers:
+                        if (k == "content-type") or (isinstance(k, bytes) and k.decode("ascii", "ignore") == "content-type"):
+                            if isinstance(v, (bytes, bytearray)):
+                                mime = v.decode("ascii", errors="ignore")
+                            else:
+                                mime = str(v)
+                            break
+            except Exception:  # pragma: no cover
+                mime = None
+
+            try:
+                parser = deserializer_for_mime(mime)
+            except Exception:  # pragma: no cover
+                parser = DESERIALIZERS["json_or_text"]
+
+            # Determine wire format hint for logging
+            wire_hint = None
+            if mime:
+                mime_l = mime.lower()
+                if "json" in mime_l:
+                    wire_hint = "json"
+                elif "protobuf" in mime_l:
+                    wire_hint = "protobuf"
+                elif "text" in mime_l:
+                    wire_hint = "text"
+                else:
+                    wire_hint = "unknown"
+
+            # Parse the message value
+            try:
+                parsed = parser(message.value)
+            except Exception:
+                # As a last resort, fall back to text
+                parsed = DESERIALIZERS["plain_text"](message.value)
+
+            # If there was no content-type header, infer from parse result
+            if not mime:
+                if isinstance(parsed, dict):
+                    wire_hint = "json"
+                else:
+                    wire_hint = "text"
 
             # Decode key if available
             key = message.key.decode('utf-8') if message.key else None
@@ -81,13 +125,14 @@ def consume_events(topic, consumer_args, event_type=None, group_id=None):
             offset = message.offset
 
             # Display the message with an appropriate prefix based on its type
+            suffix = f" [wire={wire_hint}]" if wire_hint else ""
             if isinstance(parsed, dict):
                 if event_type and parsed.get("event_type") != event_type:
                     continue  # Skip non-matching event
                 logger.info(
-                    f"✅ JSON ({parsed['event_type']}) | key={key} | partition={partition} | offset={offset} → {parsed}")
+                    f"✅ JSON ({parsed['event_type']}) | key={key} | partition={partition} | offset={offset} → {parsed}{suffix}")
             else:
-                logger.info(f"📦 Plain | key={key} | partition={partition} | offset={offset} → {parsed}")
+                logger.info(f"📦 Plain | key={key} | partition={partition} | offset={offset} → {parsed}{suffix}")
     except KeyboardInterrupt:
         # Handle graceful shutdown on Ctrl+C
         logger.info("\nShutting down gracefully...")

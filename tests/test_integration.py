@@ -165,6 +165,55 @@ class TestConsumeEventsIntegration:
             plain_logged = any("📦 Plain" in call and plain_message in call for call in log_calls)
             assert plain_logged, f"Expected plain text message in logs: {log_calls}"
 
+    def test_consume_events_protobuf_message(self, kafka_container):
+        """Test consuming Protobuf messages with real Kafka (if protobuf available)."""
+        try:
+            from serialization import SERIALIZERS, CONTENT_TYPES
+        except Exception:
+            pytest.skip("serialization module not available")
+
+        if "protobuf" not in SERIALIZERS:
+            pytest.skip("protobuf serializer not registered")
+
+        topic = "test-protobuf-consume-events"
+        bootstrap_servers = kafka_container.get_bootstrap_server()
+
+        # Pre-serialize protobuf payload
+        payload = {"id": 3, "event_type": "pb_event", "text": "protobuf"}
+        raw = SERIALIZERS["protobuf"](payload)
+        headers = [("content-type", CONTENT_TYPES["protobuf"].encode("ascii"))]
+
+        # Send protobuf bytes with header; no value_serializer so value must be bytes
+        producer_instance = KafkaProducer(
+            bootstrap_servers=bootstrap_servers,
+            key_serializer=lambda k: k.encode('utf-8') if k else None,
+        )
+        producer_instance.send(topic, key="pb_key", value=raw, headers=headers)
+        producer_instance.flush()
+        producer_instance.close()
+
+        consumer_args = {
+            'bootstrap_servers': bootstrap_servers,
+            'auto_offset_reset': 'earliest',
+            'consumer_timeout_ms': 5000
+        }
+
+        with patch('consumer.get_logger') as mock_get_logger:
+            mock_logger = Mock()
+            mock_get_logger.return_value = mock_logger
+
+            try:
+                consumer.consume_events(topic, consumer_args)
+            except Exception:
+                pass
+
+            # Verify protobuf was parsed into dict (logged as JSON line)
+            log_calls = [str(call) for call in mock_logger.info.call_args_list]
+            parsed_logged = any("pb_event" in call for call in log_calls)
+            assert parsed_logged, f"Expected protobuf event in logs: {log_calls}"
+            # And wire annotation is present
+            assert any("[wire=protobuf]" in call for call in log_calls), f"Expected wire=protobuf annotation in logs: {log_calls}"
+
     def test_consume_events_with_event_filtering(self, kafka_container):
         """Test event type filtering functionality with real Kafka"""
         topic = "test-filter-consume-events"

@@ -211,6 +211,8 @@ class TestConsumeEventsIntegration:
             log_calls = [str(call) for call in mock_logger.info.call_args_list]
             parsed_logged = any("pb_event" in call for call in log_calls)
             assert parsed_logged, f"Expected protobuf event in logs: {log_calls}"
+            # And wire annotation is present
+            assert any("[wire=protobuf]" in call for call in log_calls), f"Expected wire=protobuf annotation in logs: {log_calls}"
 
     def test_consume_events_with_event_filtering(self, kafka_container):
         """Test event type filtering functionality with real Kafka"""

@@ -52,8 +52,17 @@ def produce_events(bootstrap_servers, topic):
     #   (in this case, converting dictionaries to JSON strings and then to UTF-8 bytes)
     message_format = os.environ.get("MESSAGE_FORMAT", "json").lower()
 
-    value_serializer = SERIALIZERS.get(message_format, SERIALIZERS["json"])
-    content_type = CONTENT_TYPES.get(message_format, CONTENT_TYPES["json"]).encode("ascii")
+    # Resolve serializer/content-type with graceful fallback to JSON
+    resolved_format = message_format if message_format in SERIALIZERS else "json"
+    value_serializer = SERIALIZERS.get(resolved_format, SERIALIZERS["json"])
+    content_type_str = CONTENT_TYPES.get(resolved_format, CONTENT_TYPES["json"])
+    content_type = content_type_str.encode("ascii")
+
+    logger = get_logger("producer")
+    if resolved_format != message_format:
+        logger.warning(
+            f"Requested MESSAGE_FORMAT='{message_format}' is not available; falling back to '{resolved_format}'."
+        )
 
     producer = KafkaProducer(
         bootstrap_servers=bootstrap_servers,
@@ -61,7 +70,8 @@ def produce_events(bootstrap_servers, topic):
         value_serializer=value_serializer,
     )
 
-    logger = get_logger("producer")
+    # Startup info to make format visible in logs
+    logger.info(f"Producer starting with format={resolved_format}, content-type={content_type_str}")
 
     # Send 9 sample messages to the Kafka topic
     for i, event_type in enumerate(EVENT_TYPES * 3):

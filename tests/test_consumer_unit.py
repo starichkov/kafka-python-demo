@@ -52,6 +52,7 @@ def test_consume_unknown_mime_falls_back_to_plain_text():
 
         calls = [str(c) for c in logger.info.call_args_list]
         assert any("\ud83d\udce6 Plain" in c or "📦 Plain" in c for c in calls), f"Expected Plain log, got: {calls}"
+        assert any("[wire=unknown]" in c for c in calls), f"Expected wire=unknown annotation, got: {calls}"
 
 
 def test_consume_protobuf_mime_with_invalid_bytes_falls_back_to_plain_text():
@@ -71,6 +72,8 @@ def test_consume_protobuf_mime_with_invalid_bytes_falls_back_to_plain_text():
 
         calls = [str(c) for c in logger.info.call_args_list]
         assert any("Plain" in c for c in calls), f"Expected Plain log, got: {calls}"
+        # Even though parsing fell back to text, wire hint should reflect header
+        assert any("[wire=protobuf]" in c for c in calls), f"Expected wire=protobuf annotation, got: {calls}"
 
 
 def test_event_filtering_skips_non_matching_and_handles_keyboard_interrupt():
@@ -96,3 +99,43 @@ def test_event_filtering_skips_non_matching_and_handles_keyboard_interrupt():
         assert any("(b)" in c for c in json_calls)
         # Graceful shutdown message should be present due to KeyboardInterrupt
         assert any("Shutting down gracefully" in c for c in calls)
+        # With no header and successful JSON parse, wire hint inferred as json
+        assert any("[wire=json]" in c for c in json_calls)
+
+
+def test_json_header_annotation_present():
+    import consumer
+
+    headers = [("content-type", b"application/json")]
+    payload = {"id": 1, "event_type": "evt", "text": "x"}
+    import json as _json
+    msg = _build_msg(_json.dumps(payload).encode("utf-8"), headers=headers)
+
+    fake = FakeConsumer([msg])
+
+    with patch.object(consumer, "KafkaConsumer", return_value=fake), patch.object(consumer, "get_logger") as mock_get_logger:
+        logger = Mock()
+        mock_get_logger.return_value = logger
+
+        consumer.consume_events("t", {"bootstrap_servers": "dummy"})
+
+        calls = [str(c) for c in logger.info.call_args_list]
+        assert any("JSON (" in c and "[wire=json]" in c for c in calls), f"Expected JSON with wire=json, got: {calls}"
+
+
+def test_text_header_annotation_present():
+    import consumer
+
+    headers = [("content-type", b"text/plain")]
+    msg = _build_msg(b"hello", headers=headers)
+
+    fake = FakeConsumer([msg])
+
+    with patch.object(consumer, "KafkaConsumer", return_value=fake), patch.object(consumer, "get_logger") as mock_get_logger:
+        logger = Mock()
+        mock_get_logger.return_value = logger
+
+        consumer.consume_events("t", {"bootstrap_servers": "dummy"})
+
+        calls = [str(c) for c in logger.info.call_args_list]
+        assert any(("\ud83d\udce6 Plain" in c or "📦 Plain" in c) and "[wire=text]" in c for c in calls), f"Expected Plain with wire=text, got: {calls}"

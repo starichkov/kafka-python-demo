@@ -78,6 +78,14 @@ python consumer.py --group-id my-group
 
 Displays event type, partition, and offset info. The consumer detects the payload format using the Kafka `content-type` header sent by the producer and falls back to JSON-or-plain-text when the header is missing.
 
+Log annotation:
+- Each consumed message line includes a suffix indicating the wire format detected: `[wire=protobuf]`, `[wire=json]`, `[wire=text]`, or `[wire=unknown]`.
+- Example:
+  - `✅ JSON (note_created) | key=note_created | partition=0 | offset=1 → {...} [wire=protobuf]`
+  - `📦 Plain | key=plain | partition=0 | offset=42 → hello [wire=text]`
+  
+Note: The `✅ JSON (...)` prefix reflects that the payload was parsed into a dict (even for Protobuf). The `[wire=...]` suffix shows the on-wire format.
+
 ---
 
 ### Message Keys and Partitions

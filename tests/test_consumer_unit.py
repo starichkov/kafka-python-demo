@@ -139,3 +139,67 @@ def test_text_header_annotation_present():
 
         calls = [str(c) for c in logger.info.call_args_list]
         assert any(("\ud83d\udce6 Plain" in c or "📦 Plain" in c) and "[wire=text]" in c for c in calls), f"Expected Plain with wire=text, got: {calls}"
+
+
+def test_json_header_value_as_str_is_accepted():
+    import consumer
+
+    # content-type header value provided as Python str, not bytes
+    headers = [("content-type", "application/json")]
+    payload = {"id": 10, "event_type": "evt", "text": "t"}
+    import json as _json
+    msg = _build_msg(_json.dumps(payload).encode("utf-8"), headers=headers)
+
+    fake = FakeConsumer([msg])
+
+    with patch.object(consumer, "KafkaConsumer", return_value=fake), patch.object(consumer, "get_logger") as mock_get_logger:
+        logger = Mock()
+        mock_get_logger.return_value = logger
+
+        consumer.consume_events("t", {"bootstrap_servers": "dummy"})
+
+        calls = [str(c) for c in logger.info.call_args_list]
+        assert any("JSON (" in c and "[wire=json]" in c for c in calls), f"Expected JSON with wire=json, got: {calls}"
+
+
+def test_headers_present_without_content_type_infer_from_payload():
+    import consumer
+
+    # Some unrelated header present; no content-type header
+    headers = [("x-custom", b"y")]  # ensures headers loop runs, but mime remains None
+    payload = {"id": 11, "event_type": "evt2", "text": "ok"}
+    import json as _json
+    msg = _build_msg(_json.dumps(payload).encode("utf-8"), headers=headers)
+
+    fake = FakeConsumer([msg])
+
+    with patch.object(consumer, "KafkaConsumer", return_value=fake), patch.object(consumer, "get_logger") as mock_get_logger:
+        logger = Mock()
+        mock_get_logger.return_value = logger
+
+        consumer.consume_events("t", {"bootstrap_servers": "dummy"})
+
+        calls = [str(c) for c in logger.info.call_args_list]
+        # Since payload is JSON and no content-type header, wire should be inferred as json
+        assert any("JSON (" in c and "[wire=json]" in c for c in calls), f"Expected inferred wire=json, got: {calls}"
+
+
+def test_json_header_invalid_body_falls_back_to_text_but_keeps_annotation():
+    import consumer
+
+    headers = [("content-type", b"application/json")]
+    # Invalid JSON to force parser exception and fallback to plain text
+    msg = _build_msg(b"not-json", headers=headers)
+
+    fake = FakeConsumer([msg])
+
+    with patch.object(consumer, "KafkaConsumer", return_value=fake), patch.object(consumer, "get_logger") as mock_get_logger:
+        logger = Mock()
+        mock_get_logger.return_value = logger
+
+        consumer.consume_events("t", {"bootstrap_servers": "dummy"})
+
+        calls = [str(c) for c in logger.info.call_args_list]
+        assert any("Plain" in c for c in calls), f"Expected Plain log, got: {calls}"
+        # Even though body invalid, annotation should reflect header claim (json)
+        assert any("[wire=json]" in c for c in calls), f"Expected wire=json annotation, got: {calls}"

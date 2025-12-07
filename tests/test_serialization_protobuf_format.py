@@ -50,6 +50,16 @@ def test_serializer_empty_dict_skips_all_fields():
     assert out == {"id": 0, "event_type": "", "text": ""}
 
 
+def test_serializer_decodes_text_bytes():
+    pb = pytest.importorskip("serialization.protobuf_format")
+
+    data = {"id": 2, "event_type": "et", "text": b"hello-bytes"}
+    raw = pb.protobuf_serializer(data)
+    out = pb.protobuf_deserializer(raw)
+
+    assert out["text"] == "hello-bytes"
+
+
 def test_build_message_cls_fallback_module_level(monkeypatch):
     # Force module-level GetMessageClass to raise and ensure factory fallback path works
     pb = pytest.importorskip("serialization.protobuf_format")

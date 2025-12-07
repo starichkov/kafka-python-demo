@@ -9,7 +9,7 @@ if os.getenv("COVERAGE_PROCESS_START"):
 from kafka import KafkaProducer
 from logger import get_logger
 import time
-from serialization import SERIALIZERS
+from serialization import SERIALIZERS, CONTENT_TYPES
 
 """
 Apache Kafka Producer Demo
@@ -50,10 +50,15 @@ def produce_events(bootstrap_servers, topic):
     # - bootstrap_servers: Connection string for the Kafka broker
     # - value_serializer: Function to convert Python objects to bytes
     #   (in this case, converting dictionaries to JSON strings and then to UTF-8 bytes)
+    message_format = os.environ.get("MESSAGE_FORMAT", "json").lower()
+
+    value_serializer = SERIALIZERS.get(message_format, SERIALIZERS["json"])
+    content_type = CONTENT_TYPES.get(message_format, CONTENT_TYPES["json"]).encode("ascii")
+
     producer = KafkaProducer(
         bootstrap_servers=bootstrap_servers,
         key_serializer=lambda k: k.encode("utf-8"),
-        value_serializer=SERIALIZERS["json"],
+        value_serializer=value_serializer,
     )
 
     logger = get_logger("producer")
@@ -64,7 +69,8 @@ def produce_events(bootstrap_servers, topic):
         message = {"id": i, "event_type": event_type, "text": f"Note event {i} of type {event_type}"}
 
         # Send the message to the topic from the environment variable
-        producer.send(topic, key=event_type, value=message)
+        headers = [("content-type", content_type)]
+        producer.send(topic, key=event_type, value=message, headers=headers)
 
         # Print confirmation and wait 1 second between messages
         logger.info(f"Sent: key={event_type} | value={message}")

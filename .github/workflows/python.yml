@@ -38,7 +38,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           source .venv/bin/activate
-          pytest --cov=producer --cov=consumer --cov-report=xml
+          pytest --cov=producer --cov=consumer --cov=serialization --cov-report=xml
 
       # Only upload coverage from the main Python version (3.13)
       - name: Upload coverage to Codecov (only on Python 3.13)
@@ -65,7 +65,7 @@ jobs:
       - name: Build images
         run: docker compose build
 
-      - name: Start stack
+      - name: Start stack (JSON default)
         run: docker compose up -d
 
       - name: Wait for Kafka to be healthy
@@ -80,7 +80,7 @@ jobs:
           done
           echo "Kafka did not become healthy in time"; docker compose ps; docker compose logs kafka; exit 1
 
-      - name: Verify producer and consumer activity
+      - name: Verify producer and consumer activity (JSON)
         run: |
           # wait up to 120s for producer to send and consumer to log messages
           for i in $(seq 1 120); do
@@ -94,6 +94,42 @@ jobs:
             sleep 1
           done
           echo "Producer/consumer did not show expected activity"
+          docker compose logs
+          exit 1
+
+      - name: Tear down (after JSON run)
+        run: docker compose down -v --remove-orphans
+
+      - name: Start stack (Protobuf)
+        run: MESSAGE_FORMAT=protobuf docker compose up -d
+
+      - name: Wait for Kafka to be healthy (protobuf run)
+        run: |
+          for i in $(seq 1 60); do
+            status=$(docker inspect -f '{{json .State.Health.Status}}' kafka 2>/dev/null || echo "null")
+            echo "Kafka health: $status"
+            if [ "$status" = "\"healthy\"" ]; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Kafka did not become healthy in time"; docker compose ps; docker compose logs kafka; exit 1
+
+      - name: Verify producer and consumer activity (Protobuf)
+        run: |
+          # wait up to 120s for producer to send and consumer to log messages
+          for i in $(seq 1 120); do
+            prod=$(docker logs kafka-producer 2>&1 | grep -c 'Sent: key=' || true)
+            # Protobuf messages are logged as JSON after parsing
+            cons=$(docker logs kafka-consumer 2>&1 | grep -E -c 'JSON \(' || true)
+            echo "Attempt $i: producer=$prod consumer=$cons"
+            if [ "$prod" -ge 3 ] && [ "$cons" -ge 3 ]; then
+              echo "Producer and consumer logs look good (protobuf)"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Producer/consumer (protobuf) did not show expected activity"
           docker compose logs
           exit 1
 

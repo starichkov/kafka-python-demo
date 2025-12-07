@@ -5,11 +5,11 @@
 
 # Apache Kafka Python Demo
 
-## 🧩 Overview
+## Overview
 
 A minimal Apache Kafka demo using Python featuring:
-- A **JSON-producing** `producer.py`
-- A **format-tolerant** `consumer.py` supporting JSON & plain text
+- A multi-format `producer.py` (JSON by default; Protobuf via env)
+- A **format-tolerant** `consumer.py` supporting JSON, Protobuf & plain text
 - Partition-awareness, message keying, and consumer group support
 - Integration testing via `Testcontainers`
 - GitHub Actions & Codecov integration
@@ -18,7 +18,7 @@ It’s designed to simulate a polyglot messaging environment, where different sy
 
 ---
 
-## ⚙️ Requirements
+## Requirements
 
 - Python 3.10+
 - Docker & Docker Compose (for container-based setup) - more details could be found in the [separate section](documentation/docker.md).
@@ -32,7 +32,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🚀 Running the Demo
+## Running the Demo
 
 ### 1. Start Apache Kafka
 
@@ -46,15 +46,29 @@ docker run -d --name kafka-391 \
 
 More information about helper scripts Kafka provides could be found in the [separate section](documentation/kafka.md).
 
-### 🟢 Run Producer
+### Run Producer
 
 ```bash
 python producer.py
 ```
 
-Produces random JSON events (`note_created`, `note_updated`, `note_deleted`) with message keys for partitioning.
+Produces random events (`note_created`, `note_updated`, `note_deleted`) with message keys for partitioning.
 
-### 🔵 Run Consumer
+Formats:
+- JSON (default)
+- Protobuf (enable via `MESSAGE_FORMAT=protobuf`)
+
+Examples:
+
+```bash
+# JSON (default)
+python producer.py
+
+# Protobuf
+MESSAGE_FORMAT=protobuf python producer.py
+```
+
+### Run Consumer
 
 ```bash
 python consumer.py                   # All events
@@ -62,11 +76,11 @@ python consumer.py --event-type X   # Filtered by event_type
 python consumer.py --group-id my-group
 ```
 
-Displays event type, partition, and offset info.
+Displays event type, partition, and offset info. The consumer detects the payload format using the Kafka `content-type` header sent by the producer and falls back to JSON-or-plain-text when the header is missing.
 
 ---
 
-### 🔑 Message Keys and Partitions
+### Message Keys and Partitions
 
 The producer now uses the message's `event_type` as the Kafka **key**, which ensures that:
 
@@ -99,7 +113,7 @@ To see all partitions used, try increasing the number of unique keys or remove t
 
 ---
 
-### 👥 Consumer Groups and Partition Rebalancing
+### Consumer Groups and Partition Rebalancing
 
 Kafka uses consumer groups to distribute the workload of processing messages across multiple consumers.
 
@@ -123,7 +137,7 @@ Note: If you have more partitions than consumers, some consumers may receive mul
 
 ---
 
-## 🧪 Running Tests & Coverage
+## Running Tests & Coverage
 
 Details could be found in the [separate section](documentation/tests.md).
 
@@ -136,7 +150,7 @@ scripts/compose_smoke_test.sh --dry-run
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 kafka-python-demo/
@@ -155,7 +169,7 @@ kafka-python-demo/
 
 ---
 
-## 📌 Notes
+## Notes
 
 - Topic name is configurable via environment variable `KAFKA_TOPIC` (default: `notes-topic`).
 - You can edit the scripts to change topic names or message structures.
@@ -165,6 +179,7 @@ kafka-python-demo/
 
 - `KAFKA_BOOTSTRAP_SERVERS` — Kafka broker(s), default: `localhost:9092`
 - `KAFKA_TOPIC` — topic to produce/consume, default: `notes-topic`
+- `MESSAGE_FORMAT` — producer payload format: `json` (default) or `protobuf`
 
 Examples:
 
@@ -176,11 +191,14 @@ python consumer.py
 
 # Using Docker Compose (host env is picked up by compose)
 KAFKA_TOPIC=my-topic docker compose up -d
+
+# Switch producer to Protobuf in Docker Compose
+MESSAGE_FORMAT=protobuf docker compose up -d
 ```
 
 ---
 
-## 🔗 Links
+## Links
 
 - [Status of Python versions](https://devguide.python.org/versions/)
 - [Apache Kafka (Official)](https://kafka.apache.org/)
@@ -192,7 +210,7 @@ KAFKA_TOPIC=my-topic docker compose up -d
 
 ---
 
-## 🧾 About TemplateTasks
+## About TemplateTasks
 
 TemplateTasks is a personal software development initiative by Vadim Starichkov, focused on sharing open-source libraries, services, and technical demos.
 
@@ -200,7 +218,7 @@ It operates independently and outside the scope of any employment.
 
 All code is released under permissive open-source licenses. The legal structure may evolve as the project grows.
 
-## 📜 License & Attribution
+## License & Attribution
 
 This project is licensed under the **MIT License** - see the [LICENSE](https://github.com/starichkov/kafka-python-demo/blob/main/LICENSE.md) file for details.
 

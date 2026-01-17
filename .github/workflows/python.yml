@@ -18,7 +18,7 @@ jobs:
       TESTCONTAINERS_RYUK_DISABLED: true
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
@@ -43,7 +43,7 @@ jobs:
       # Only upload coverage from the main Python version (3.13)
       - name: Upload coverage to Codecov (only on Python 3.13)
         if: matrix.python-version == '3.13'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
@@ -55,7 +55,7 @@ jobs:
     needs: test
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Show Docker versions
         run: |

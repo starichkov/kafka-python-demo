@@ -240,4 +240,4 @@ Based on kafka-python-demo by Vadim Starichkov, TemplateTasks
 https://github.com/starichkov/kafka-python-demo
 ```
 
-**Copyright © 2025 Vadim Starichkov, TemplateTasks**
+**Copyright © 2026 Vadim Starichkov, TemplateTasks**

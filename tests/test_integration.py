@@ -24,6 +24,7 @@ with patch.object(sys, 'argv', ['consumer.py']):
     import consumer
 import producer
 from logger import get_logger
+from serialization import Serializer, Deserializer
 
 
 @pytest.fixture(scope="module")
@@ -85,8 +86,8 @@ class TestConsumeEventsIntegration:
         # Send a test message using a real producer
         producer_instance = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
-            key_serializer=lambda k: k.encode('utf-8') if k else None,
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+            key_serializer=Serializer(lambda k: k.encode('utf-8') if k else None),
+            value_serializer=Serializer(lambda v: json.dumps(v).encode('utf-8'))
         )
 
         test_message = {"id": 1, "event_type": "test_event", "data": "test data"}
@@ -134,8 +135,8 @@ class TestConsumeEventsIntegration:
         # Send a plain text message
         producer_instance = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
-            key_serializer=lambda k: k.encode('utf-8') if k else None,
-            value_serializer=lambda v: v.encode('utf-8')
+            key_serializer=Serializer(lambda k: k.encode('utf-8') if k else None),
+            value_serializer=Serializer(lambda v: v.encode('utf-8'))
         )
 
         plain_message = "This is a plain text message"
@@ -186,7 +187,7 @@ class TestConsumeEventsIntegration:
         # Send protobuf bytes with header; no value_serializer so value must be bytes
         producer_instance = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
-            key_serializer=lambda k: k.encode('utf-8') if k else None,
+            key_serializer=Serializer(lambda k: k.encode('utf-8') if k else None),
         )
         producer_instance.send(topic, key="pb_key", value=raw, headers=headers)
         producer_instance.flush()
@@ -222,8 +223,8 @@ class TestConsumeEventsIntegration:
         # Send messages with different event types
         producer_instance = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
-            key_serializer=lambda k: k.encode('utf-8') if k else None,
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+            key_serializer=Serializer(lambda k: k.encode('utf-8') if k else None),
+            value_serializer=Serializer(lambda v: json.dumps(v).encode('utf-8'))
         )
 
         wanted_message = {"id": 1, "event_type": "wanted_event", "data": "wanted"}
@@ -271,7 +272,7 @@ class TestConsumerMainIntegration:
         # Send a test message first
         producer = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+            value_serializer=Serializer(lambda v: json.dumps(v).encode('utf-8'))
         )
         producer.send(topic, value={"id": 1, "event_type": "env_test"})
         producer.flush()
@@ -300,7 +301,7 @@ class TestConsumerMainIntegration:
         # Send a test message first
         producer = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+            value_serializer=Serializer(lambda v: json.dumps(v).encode('utf-8'))
         )
         producer.send(topic, value={"id": 1, "event_type": "group_test"})
         producer.flush()
@@ -340,7 +341,7 @@ class TestProduceEventsIntegration:
             bootstrap_servers=bootstrap_servers,
             auto_offset_reset='earliest',
             consumer_timeout_ms=5000,
-            value_deserializer=lambda v: json.loads(v.decode('utf-8'))
+            value_deserializer=Deserializer(lambda v: json.loads(v.decode('utf-8')))
         )
 
         messages = []
@@ -396,7 +397,7 @@ class TestProducerMainIntegration:
             bootstrap_servers=bootstrap_servers,
             auto_offset_reset='earliest',
             consumer_timeout_ms=3000,
-            value_deserializer=lambda v: json.loads(v.decode('utf-8'))
+            value_deserializer=Deserializer(lambda v: json.loads(v.decode('utf-8')))
         )
 
         message_count = 0

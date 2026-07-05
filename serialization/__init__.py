@@ -16,19 +16,63 @@ implementations under string keys so additional formats can be plugged in
 later without changing producer/consumer code.
 """
 
-Serializer = Callable[[Any], bytes]
-Deserializer = Callable[[bytes], Any]
+try:
+    from kafka.serializer import Serializer as KafkaSerializer, Deserializer as KafkaDeserializer
+except ImportError:
+    class KafkaSerializer:
+        pass
+
+    class KafkaDeserializer:
+        pass
+
+
+class Serializer(KafkaSerializer):
+    """Wrapper to satisfy kafka-python 3.x Serializer interface."""
+
+    def __init__(self, fn: Callable[[Any], bytes]):
+        self.fn = fn
+
+    def serialize(self, topic: str, headers: Any, data: Any) -> bytes:
+        return self.fn(data)
+
+    def __call__(self, value: Any) -> bytes:
+        return self.fn(value)
+
+
+class Deserializer(KafkaDeserializer):
+    """Wrapper to satisfy kafka-python 3.x Deserializer interface."""
+
+    def __init__(self, fn: Callable[[bytes], Any]):
+        self.fn = fn
+
+    def deserialize(self, topic: str, headers: Any, data: bytes) -> Any:
+        return self.fn(data)
+
+    def __call__(self, value: bytes) -> Any:
+        return self.fn(value)
+
 
 from .json_format import (
-    json_serializer,
-    json_deserializer,
-    plain_text_deserializer,
-    json_or_text_deserializer,
+    json_serializer as _json_serializer,
+    json_deserializer as _json_deserializer,
+    plain_text_deserializer as _plain_text_deserializer,
+    json_or_text_deserializer as _json_or_text_deserializer,
 )
+
+json_serializer = Serializer(_json_serializer)
+json_deserializer = Deserializer(_json_deserializer)
+plain_text_deserializer = Deserializer(_plain_text_deserializer)
+json_or_text_deserializer = Deserializer(_json_or_text_deserializer)
 
 try:
     # Protobuf support is optional and only used when requested
-    from .protobuf_format import protobuf_serializer, protobuf_deserializer
+    from .protobuf_format import (
+        protobuf_serializer as _protobuf_serializer,
+        protobuf_deserializer as _protobuf_deserializer,
+    )
+
+    protobuf_serializer = Serializer(_protobuf_serializer)
+    protobuf_deserializer = Deserializer(_protobuf_deserializer)
     _PROTOBUF_AVAILABLE = True
 except Exception:  # pragma: no cover - exercised in envs without protobuf
     protobuf_serializer = None  # type: ignore

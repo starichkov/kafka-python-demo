@@ -9,7 +9,7 @@ if os.getenv("COVERAGE_PROCESS_START"):
 from kafka import KafkaProducer
 from logger import get_logger
 import time
-from serialization import SERIALIZERS, CONTENT_TYPES
+from serialization import SERIALIZERS, CONTENT_TYPES, Serializer
 
 """
 Apache Kafka Producer Demo
@@ -66,7 +66,7 @@ def produce_events(bootstrap_servers, topic):
 
     producer = KafkaProducer(
         bootstrap_servers=bootstrap_servers,
-        key_serializer=lambda k: k.encode("utf-8"),
+        key_serializer=Serializer(lambda k: k.encode("utf-8")),
         value_serializer=value_serializer,
     )
 

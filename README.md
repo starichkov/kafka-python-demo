@@ -39,9 +39,9 @@ pip install -r requirements.txt
 You can start Apache Kafka using Docker. For example:
 
 ```shell
-docker run -d --name kafka-391 \
+docker run -d --name kafka-392 \
   -p 9092:9092 \
-  apache/kafka:3.9.1
+  apache/kafka:3.9.2
 ```
 
 More information about helper scripts Kafka provides could be found in the [separate section](documentation/kafka.md).

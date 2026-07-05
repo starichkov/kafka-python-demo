@@ -1,2 +1,2 @@
-kafka-python==2.2.18
-protobuf==6.33.4
+kafka-python==2.2.20
+protobuf==6.33.6

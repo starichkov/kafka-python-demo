@@ -45,7 +45,7 @@ A minimal Apache Kafka demo using Python. It showcases a JSON-producing producer
 ## Quickstart
 1) Start Kafka (example):
 ```
-docker run -d --name kafka-391 -p 9092:9092 apache/kafka:3.9.1
+docker run -d --name kafka-392 -p 9092:9092 apache/kafka:3.9.2
 ```
 
 2) Install Python deps:

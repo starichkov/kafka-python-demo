@@ -1,6 +1,6 @@
 services:
   kafka:
-    image: apache/kafka:3.9.2
+    image: apache/kafka:${KAFKA_VERSION:-3.9.2}
     container_name: kafka
     ports:
       - "9092:9092"
@@ -21,7 +21,7 @@ services:
       retries: 5
 
   kafka-setup:
-    image: apache/kafka:3.9.2
+    image: apache/kafka:${KAFKA_VERSION:-3.9.2}
     container_name: kafka-setup
     depends_on:
       kafka:

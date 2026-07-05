@@ -23,30 +23,42 @@ pytest
 You can run the integration test that uses `testcontainers` with Kafka:
 
 ```bash
-pytest tests/test_kafka_integration.py
+pytest tests/test_integration.py
 ```
 
-### ⚙️ Running Tests With Coverage (subprocess-safe)
+### ⚙️ Running Tests With Coverage
 
-To enable coverage tracking for both main tests and subprocesses:
-
-#### 1. Export the coverage config path:
+The easiest way to run all tests with coverage is to use the provided helper script:
 
 ```bash
-export COVERAGE_PROCESS_START=$(pwd)/.coveragerc
+./run_tests_with_coverage.sh
 ```
 
-#### 2. Run tests with coverage:
+This script will:
+1. Clear previous coverage data and HTML report.
+2. Run all tests with coverage enabled.
+3. Generate a new HTML report in `htmlcov/index.html`.
+
+#### Testing different Kafka versions
+
+By default, the script runs tests against Kafka 4.2. You can specify the version as an argument:
 
 ```bash
-pytest --cov --cov-report=term-missing
+# Test with Kafka 4.2 (default)
+./run_tests_with_coverage.sh
+
+# Test with Kafka 3.9
+./run_tests_with_coverage.sh 3.9
 ```
 
-#### 3. Generate an HTML coverage report (optional):
+Alternatively, you can specify a full Kafka image name or use the `KAFKA_TEST_IMAGE` environment variable:
 
 ```bash
-coverage html
-xdg-open htmlcov/index.html  # or open htmlcov/index.html manually
+# Using a custom image as an argument
+./run_tests_with_coverage.sh confluentinc/cp-kafka:8.2.2
+
+# Using environment variable
+KAFKA_TEST_IMAGE=confluentinc/cp-kafka:7.9.8 ./run_tests_with_coverage.sh
 ```
 
 ### 🧠 Subprocess Coverage Reminder

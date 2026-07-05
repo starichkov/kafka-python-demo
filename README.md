@@ -22,7 +22,7 @@ It’s designed to simulate a polyglot messaging environment, where different sy
 
 - Python 3.10+
 - Docker & Docker Compose (for container-based setup) - more details could be found in the [separate section](documentation/docker.md).
-- Apache Kafka (external or Dockerized)
+- Apache Kafka (external or Dockerized) - supports both **3.9.x** and **4.2.x**
 
 Install Python dependencies:
 
@@ -39,9 +39,11 @@ pip install -r requirements.txt
 You can start Apache Kafka using Docker. For example:
 
 ```shell
-docker run -d --name kafka-392 \
-  -p 9092:9092 \
-  apache/kafka:3.9.2
+# Kafka 3.9.x
+docker run -d --name kafka-392 -p 9092:9092 apache/kafka:3.9.2
+
+# Kafka 4.2.x
+docker run -d --name kafka-421 -p 9092:9092 apache/kafka:4.2.1
 ```
 
 More information about helper scripts Kafka provides could be found in the [separate section](documentation/kafka.md).
@@ -187,6 +189,7 @@ kafka-python-demo/
 
 - `KAFKA_BOOTSTRAP_SERVERS` — Kafka broker(s), default: `localhost:9092`
 - `KAFKA_TOPIC` — topic to produce/consume, default: `notes-topic`
+- `KAFKA_VERSION` — Kafka version for Docker Compose, default: `3.9.2` (can be set to `4.2.1`)
 - `MESSAGE_FORMAT` — producer payload format: `json` (default) or `protobuf`
 
 Examples:

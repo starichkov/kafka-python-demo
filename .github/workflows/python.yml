@@ -12,10 +12,26 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        include:
+          - python-version: "3.10"
+            kafka-version: "3.9"
+            kafka-image: "confluentinc/cp-kafka:7.9.8"
+          - python-version: "3.11"
+            kafka-version: "3.9"
+            kafka-image: "confluentinc/cp-kafka:7.9.8"
+          - python-version: "3.12"
+            kafka-version: "3.9"
+            kafka-image: "confluentinc/cp-kafka:7.9.8"
+          - python-version: "3.13"
+            kafka-version: "4.2"
+            kafka-image: "confluentinc/cp-kafka:8.2.2"
+          - python-version: "3.14"
+            kafka-version: "4.2"
+            kafka-image: "confluentinc/cp-kafka:8.2.2"
 
     env:
       TESTCONTAINERS_RYUK_DISABLED: true
+      KAFKA_TEST_IMAGE: ${{ matrix.kafka-image }}
 
     steps:
       - uses: actions/checkout@v6
@@ -50,10 +66,17 @@ jobs:
           fail_ci_if_error: true
 
   compose-e2e:
-    name: Docker Compose smoke test
+    name: Docker Compose smoke test (Kafka ${{ matrix.kafka-version }})
     runs-on: ubuntu-22.04
     needs: test
     timeout-minutes: 20
+    strategy:
+      matrix:
+        include:
+          - kafka-version: "3.9"
+            kafka-full-version: "3.9.2"
+          - kafka-version: "4.2"
+            kafka-full-version: "4.2.1"
     steps:
       - uses: actions/checkout@v6
 
@@ -66,7 +89,7 @@ jobs:
         run: docker compose build
 
       - name: Start stack (JSON default)
-        run: docker compose up -d
+        run: KAFKA_VERSION=${{ matrix.kafka-full-version }} docker compose up -d
 
       - name: Wait for Kafka to be healthy
         run: |
@@ -101,7 +124,7 @@ jobs:
         run: docker compose down -v --remove-orphans
 
       - name: Start stack (Protobuf)
-        run: MESSAGE_FORMAT=protobuf docker compose up -d
+        run: KAFKA_VERSION=${{ matrix.kafka-full-version }} MESSAGE_FORMAT=protobuf docker compose up -d
 
       - name: Wait for Kafka to be healthy (protobuf run)
         run: |

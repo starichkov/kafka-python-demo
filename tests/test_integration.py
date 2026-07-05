@@ -30,7 +30,18 @@ from serialization import Serializer, Deserializer
 @pytest.fixture(scope="module")
 def kafka_container():
     """Fixture that provides a reusable Kafka container for all tests."""
-    with KafkaContainer(image="confluentinc/cp-kafka:7.9.8") as kafka:
+    image = os.getenv("KAFKA_TEST_IMAGE", "confluentinc/cp-kafka:7.9.8")
+    container = KafkaContainer(image=image)
+    # Enable KRaft for modern Kafka versions (required for 4.0+, supported in 3.x)
+    # Note: official apache/kafka images might not be fully compatible with 
+    # testcontainers-python's KafkaContainer yet, so cp-kafka is preferred for tests.
+    try:
+        container.with_kraft()
+    except (ValueError, AttributeError):
+        # Fallback for older testcontainers or images that don't support with_kraft
+        pass
+    
+    with container as kafka:
         yield kafka
 
 

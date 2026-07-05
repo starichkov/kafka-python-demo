@@ -1,6 +1,6 @@
 ### Start Apache Kafka
 
-You can start Apache Kafka using Docker. For example:
+You can start Apache Kafka using Docker. For example, for Kafka 3.9.x:
 
 ```shell
 docker run -d --name kafka-392 \
@@ -8,12 +8,20 @@ docker run -d --name kafka-392 \
   apache/kafka:3.9.2
 ```
 
+Or for Kafka 4.2.x (KRaft-only):
+ 
+ ```shell
+ docker run -d --name kafka-421 \
+   -p 9092:9092 \
+   apache/kafka:4.2.1
+ ```
+
 Or use another Apache Kafka image you prefer. Ensure port `9092` is available.
 
 Connect to the container:
 
 ```shell
-docker exec -it kafka-392 bash
+docker exec -it kafka-421 bash
 ```
 
 Proceed to the directory with scripts:

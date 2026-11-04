@@ -58,8 +58,8 @@ jobs:
 
       # Only upload coverage from the main Python version (3.13)
       - name: Upload coverage to Codecov (only on Python 3.13)
-        if: matrix.python-version == '3.13'
-        uses: codecov/codecov-action@v5
+        if: matrix.python-version == '3.14'
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml

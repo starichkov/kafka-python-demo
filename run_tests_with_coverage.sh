@@ -3,14 +3,14 @@
 export COVERAGE_PROCESS_START=$(pwd)/.coveragerc
 
 # Argument parsing
-KAFKA_VERSION_ARG=${1:-"4.2"}
+KAFKA_VERSION_ARG=${1:-"4.3"}
 
 case $KAFKA_VERSION_ARG in
     "3.9")
         DEFAULT_IMAGE="confluentinc/cp-kafka:7.9.8"
         ;;
-    "4.2")
-        DEFAULT_IMAGE="confluentinc/cp-kafka:8.2.2"
+    "4.3")
+        DEFAULT_IMAGE="confluentinc/cp-kafka:8.3.2"
         ;;
     *)
         # If the argument looks like an image name (contains : or /), use it directly
@@ -18,9 +18,9 @@ case $KAFKA_VERSION_ARG in
             DEFAULT_IMAGE=$KAFKA_VERSION_ARG
             KAFKA_VERSION_ARG="custom"
         else
-            echo "⚠️  Unknown Kafka version: $KAFKA_VERSION_ARG. Defaulting to 4.2"
-            KAFKA_VERSION_ARG="4.2"
-            DEFAULT_IMAGE="confluentinc/cp-kafka:8.2.2"
+            echo "⚠️  Unknown Kafka version: $KAFKA_VERSION_ARG. Defaulting to 4.3"
+            KAFKA_VERSION_ARG="4.3"
+            DEFAULT_IMAGE="confluentinc/cp-kafka:8.3.2"
         fi
         ;;
 esac

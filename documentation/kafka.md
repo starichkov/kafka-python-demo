@@ -8,12 +8,12 @@ docker run -d --name kafka-392 \
   apache/kafka:3.9.2
 ```
 
-Or for Kafka 4.2.x (KRaft-only):
+Or for Kafka 4.3.x (KRaft-only):
  
  ```shell
- docker run -d --name kafka-421 \
-   -p 9092:9092 \
-   apache/kafka:4.2.2
+ docker run -d --name kafka-432 \
+  -p 9092:9092 \
+  apache/kafka:4.3.2
  ```
 
 Or use another Apache Kafka image you prefer. Ensure port `9092` is available.
@@ -21,7 +21,7 @@ Or use another Apache Kafka image you prefer. Ensure port `9092` is available.
 Connect to the container:
 
 ```shell
-docker exec -it kafka-421 bash
+docker exec -it kafka-432 bash
 ```
 
 Proceed to the directory with scripts:

@@ -41,10 +41,10 @@ This script will:
 
 #### Testing different Kafka versions
 
-By default, the script runs tests against Kafka 4.2. You can specify the version as an argument:
+By default, the script runs tests against Kafka 4.3. You can specify the version as an argument:
 
 ```bash
-# Test with Kafka 4.2 (default)
+# Test with Kafka 4.3 (default)
 ./run_tests_with_coverage.sh
 
 # Test with Kafka 3.9
@@ -55,7 +55,7 @@ Alternatively, you can specify a full Kafka image name or use the `KAFKA_TEST_IM
 
 ```bash
 # Using a custom image as an argument
-./run_tests_with_coverage.sh confluentinc/cp-kafka:8.2.2
+./run_tests_with_coverage.sh confluentinc/cp-kafka:8.3.2
 
 # Using environment variable
 KAFKA_TEST_IMAGE=confluentinc/cp-kafka:7.9.8 ./run_tests_with_coverage.sh

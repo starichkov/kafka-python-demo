@@ -13,7 +13,7 @@ Or for Kafka 4.2.x (KRaft-only):
  ```shell
  docker run -d --name kafka-421 \
    -p 9092:9092 \
-   apache/kafka:4.2.1
+   apache/kafka:4.2.2
  ```
 
 Or use another Apache Kafka image you prefer. Ensure port `9092` is available.

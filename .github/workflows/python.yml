@@ -76,7 +76,7 @@ jobs:
           - kafka-version: "3.9"
             kafka-full-version: "3.9.2"
           - kafka-version: "4.2"
-            kafka-full-version: "4.2.1"
+            kafka-full-version: "4.2.2"
     steps:
       - uses: actions/checkout@v7
 

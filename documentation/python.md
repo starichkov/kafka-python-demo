@@ -126,8 +126,8 @@ deactivate
 
 ```bash
 # Create with specific Python version
-python3.10 -m venv venv310
 python3.11 -m venv venv311
+python3.15 -m venv venv315
 
 # Using virtualenv (if installed)
 virtualenv -p python3.12 venv312
